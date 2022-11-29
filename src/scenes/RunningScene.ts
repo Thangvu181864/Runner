@@ -92,7 +92,7 @@ export default class RunningScene extends Scene {
     this.add(light);
 
     this.player = await this.fbxLoader.loadAsync(
-      "./assets/characters/xbot.fbx"
+      "./assets/characters/hiepdv.fbx"
     );
     this.player.position.z = -110;
     this.player.position.y = -35;
@@ -107,7 +107,7 @@ export default class RunningScene extends Scene {
     this.woodenCave.scale.set(0.055, 0.055, 0.055);
     this.add(this.woodenCave);
 
-    const runningAnimationObject = await   this.fbxLoader.loadAsync('./assets/animations/xbot@running.fbx');
+    const runningAnimationObject = await   this.fbxLoader.loadAsync('./assets/animations/hiepdv@running.fbx');
 
     this.animationMixer = new AnimationMixer(this.player);
     this.runningAnimation = this.animationMixer.clipAction(runningAnimationObject.animations[0]);
@@ -121,10 +121,10 @@ export default class RunningScene extends Scene {
 
     this.currentAnimation = this.runningAnimation;
 
-    const jumpingAnimationObject = await this.fbxLoader.loadAsync('./assets/animations/xbot@jumping.fbx');
+    const jumpingAnimationObject = await this.fbxLoader.loadAsync('./assets/animations/hiepdv@jumping.fbx');
 
     this.jumpingAnimation = this.animationMixer.clipAction(jumpingAnimationObject.animations[0]);
-    const slidingAnimationObject = await this.fbxLoader.loadAsync('./assets/animations/xbot@sliding.fbx');
+    const slidingAnimationObject = await this.fbxLoader.loadAsync('./assets/animations/hiepdv@sliding.fbx');
     // remove the animation track that makes the player move forward when sliding
     slidingAnimationObject.animations[0].tracks.shift();
     this.slidingAnimation = this.animationMixer.clipAction(slidingAnimationObject.animations[0]);
@@ -169,7 +169,7 @@ export default class RunningScene extends Scene {
     this.generateCenterRightCoins();
 
     this.generateRightCoins();
-    const stumblingAnimationObject = await this.fbxLoader.loadAsync('../../assets/animations/xbot@stumbling.fbx');
+    const stumblingAnimationObject = await this.fbxLoader.loadAsync('../../assets/animations/hiepdv@stumbling.fbx');
     this.stumbleAnimation = this.animationMixer.clipAction(stumblingAnimationObject.animations[0]);
     this.playerBox.visible = false;
     const gestureZone = (document.getElementById('app') as HTMLInputElement);
