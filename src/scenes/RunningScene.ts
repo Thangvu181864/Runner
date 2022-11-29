@@ -746,6 +746,7 @@ private restartGame() {
     this.isPlayerHeadStart= true;
   }, 3000);
   (document.querySelector('.disable-touch') as HTMLInputElement).style.display = 'none';
+  this.player.visible = true;
 
 }
 
