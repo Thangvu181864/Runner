@@ -1,4 +1,4 @@
-import { Scene, DirectionalLight, AmbientLight, Object3D, AnimationMixer, AnimationAction, Clock, Box3, Group, BoxGeometry, MeshPhongMaterial, Mesh, Vector3 } from "three";
+import { Scene, DirectionalLight, AmbientLight, Object3D, AnimationMixer, AnimationAction, Clock, Box3, Group, BoxGeometry, MeshPhongMaterial, Mesh, Vector3, TextureLoader, RepeatWrapping } from "three";
 
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import TWEEN, { Tween } from '@tweenjs/tween.js';
@@ -90,6 +90,12 @@ export default class RunningScene extends Scene {
 
     light.position.set(0, 40, -10);
     this.add(light);
+    const loader = new TextureLoader();
+    loader.load('/public/assets/models/bau.jpg', (texture) => {
+      texture.wrapS = texture.wrapT = RepeatWrapping ;
+      texture.repeat.set(1, 1);
+      this.background = texture;
+    });
 
     this.player = await this.fbxLoader.loadAsync(
       "./assets/characters/hiepdv.fbx"

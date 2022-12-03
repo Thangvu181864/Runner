@@ -13,7 +13,13 @@ const renderer = new WebGLRenderer({
 
 renderer.setSize(width, height);
 
-const mainCamera = new PerspectiveCamera(60, width / height, 0.1, 1000);
+const mainCamera = new PerspectiveCamera(40, width / height, 0.1, 1000);
+mainCamera.position.z = 5;
+//move camera with mouse
+document.addEventListener("mousemove", (e) => {
+  mainCamera.position.x = (e.clientX / width) * 10 - 10;
+  mainCamera.position.y = (e.clientY / height) * 10 - 10;
+});
 
 function onWindowResize() {
   mainCamera.aspect = window.innerWidth / window.innerHeight;
