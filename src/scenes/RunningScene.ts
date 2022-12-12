@@ -1,8 +1,7 @@
-import { Scene, DirectionalLight, AmbientLight, Object3D, AnimationMixer, AnimationAction, Clock, Box3, Group, BoxGeometry, MeshPhongMaterial, Mesh, Vector3, TextureLoader, RepeatWrapping } from "three";
+import   { Scene, DirectionalLight, AmbientLight, Object3D, AnimationMixer, AnimationAction, Clock, Box3, BoxGeometry, MeshPhongMaterial, Mesh, Vector3, Group, TextureLoader, RepeatWrapping } from "three";
 
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
-import TWEEN, { Tween } from '@tweenjs/tween.js';
-
+import TWEEN, {  Tween } from '@tweenjs/tween.js';
 
 export default class RunningScene extends Scene {
   private fbxLoader = new FBXLoader();
@@ -10,7 +9,6 @@ export default class RunningScene extends Scene {
   private woodenCave = new Object3D();
 
   private player = new Object3D();
-  
   private animationMixer!: AnimationMixer;
 
   private runningAnimation!: AnimationAction;
@@ -18,13 +16,11 @@ export default class RunningScene extends Scene {
   private clock = new Clock();
 
   private delta = 0;
-
   private woodenCaveClone = new Object3D();
 
   private caveSize = 0;
 
-  private speed = 220;
-  
+  private speed = 300;
   private currentAnimation!: AnimationAction;
 
   private jumpingAnimation!: AnimationAction;
@@ -39,7 +35,6 @@ export default class RunningScene extends Scene {
   private slidingAnimation !: AnimationAction;
 
   private sliderTimeout!: ReturnType<typeof setTimeout>;
-
   private barrelObject = new Object3D();
 
   private boxObject = new Object3D();
@@ -50,7 +45,7 @@ export default class RunningScene extends Scene {
   private currentObstacleOne = new Group();
 
   private currentObstacleTwo = new Group();
-
+  
   private playerBox = new Mesh(new BoxGeometry(), new MeshPhongMaterial({ color: 0x0000ff }));
 
   private playerBoxCollider = new Box3(new Vector3(), new Vector3());
@@ -58,16 +53,16 @@ export default class RunningScene extends Scene {
   private obstacleBox = new Box3(new Vector3(), new Vector3());
 
   private obstacleBox2 = new Box3(new Vector3(), new Vector3());
-
+  
   private coinObject = new Object3D();
 
   private coinsArray: Group[] = [];
   private activeCoinsGroup = new Group();
-  private coinBox = new Box3(new Vector3(), new Vector3());
   private scores = 0;
 
   private coins = 0;
   private isGamePaused = false;
+
   private isGameOver = false;
   private stumbleAnimation!: AnimationAction;
   private isPlayerHeadStart = false;
@@ -78,17 +73,21 @@ export default class RunningScene extends Scene {
   private touchstartY = 0;
 
   private touchendY = 0;
+  private coinBox = new Box3(new Vector3(), new Vector3());
 
 
+ 
 
 
   async load() {
-    const ambient = new AmbientLight(0xffffff, 2.5);
+    const ambient = new AmbientLight(0xFFFFFF, 2.5);
     this.add(ambient);
 
-    const light = new DirectionalLight(0xffffff, 2.5);
-
+    const light = new DirectionalLight(0xFFFFFF, 2.5);
     light.position.set(0, 40, -10);
+    light.castShadow = true;
+    light.target.position.set(0,0,0);
+    this.add(light.target)
     this.add(light);
     const loader = new TextureLoader();
     loader.load('/public/assets/models/bau.jpg', (texture) => {
@@ -97,20 +96,26 @@ export default class RunningScene extends Scene {
       this.background = texture;
     });
 
+
+   
+
     this.player = await this.fbxLoader.loadAsync(
-      "./assets/characters/hiepdv.fbx"
+      "./assets/characters/hiepdv.fbx" 
     );
-    this.player.position.z = -110;
+    this.player.position.z = -120;
     this.player.position.y = -35;
-    this.player.scale.set(0.1, 0.1, 0.1);
-    this.player.rotation.y = 180 * (Math.PI / 180);
-    this.add(this.player);
+    this.player.scale.set(0.1, 0.1, 0.1); 
+    this.player.rotation.y = -180 * (Math.PI / 180);
+    this.add(this.player); 
 
     this.woodenCave = await this.fbxLoader.loadAsync(
-      "./assets/models/wooden-cave.fbx"
+      "./assets/models/hiep.fbx"
     );
-    this.woodenCave.position.set(0, 0, -500);
-    this.woodenCave.scale.set(0.055, 0.055, 0.055);
+    this.woodenCave.position.set(-13, -40, -110); 
+    this.woodenCave.scale.set(0.1, 0.1, 0.15);
+    this.woodenCave.rotation.x = -90 * (Math.PI / 180);
+    this.woodenCave.rotation.y = 90 * (Math.PI / 180);
+    this.woodenCave.rotation.z = 90 * (Math.PI / 180);
     this.add(this.woodenCave);
 
     const runningAnimationObject = await   this.fbxLoader.loadAsync('./assets/animations/hiepdv@running.fbx');
@@ -118,29 +123,29 @@ export default class RunningScene extends Scene {
     this.animationMixer = new AnimationMixer(this.player);
     this.runningAnimation = this.animationMixer.clipAction(runningAnimationObject.animations[0]);
     this.runningAnimation.play();
-    
+
     this.woodenCaveClone = this.woodenCave.clone();
     const caveBox = new Box3().setFromObject(this.woodenCave);
     this.caveSize = caveBox.max.z - caveBox.min.z - 1;
     this.woodenCaveClone.position.z = this.woodenCave.position.z + this.caveSize;
     this.add(this.woodenCaveClone);
 
-    this.currentAnimation = this.runningAnimation;
+  this.currentAnimation = this.runningAnimation;
+    
+  const jumpingAnimationObject = await this.fbxLoader.loadAsync('./assets/animations/hiepdv@jumping.fbx');
 
-    const jumpingAnimationObject = await this.fbxLoader.loadAsync('./assets/animations/hiepdv@jumping.fbx');
-
-    this.jumpingAnimation = this.animationMixer.clipAction(jumpingAnimationObject.animations[0]);
-    const slidingAnimationObject = await this.fbxLoader.loadAsync('./assets/animations/hiepdv@sliding.fbx');
+  this.jumpingAnimation = this.animationMixer.clipAction(jumpingAnimationObject.animations[0]);
+ 
+  const slidingAnimationObject = await this.fbxLoader.loadAsync('./assets/animations/hiepdv@sliding.fbx');
     // remove the animation track that makes the player move forward when sliding
     slidingAnimationObject.animations[0].tracks.shift();
     this.slidingAnimation = this.animationMixer.clipAction(slidingAnimationObject.animations[0]);
     this.barrelObject = await this.fbxLoader.loadAsync('../../assets/models/barrel.fbx');
     this.boxObject = await this.fbxLoader.loadAsync('../../assets/models/box.fbx');
     this.spikeObject = await this.fbxLoader.loadAsync('../../assets/models/spike.fbx');
+    this.createLeftJumpObstacle();
     
     this.createLeftJumpObstacle();
-
-    // this.createLeftJumpObstacle();
 
     this.createCenterJumpObstacle();
 
@@ -159,13 +164,14 @@ export default class RunningScene extends Scene {
     this.createCenterSlideObstacle();
 
     this.createRightSlideObstacle();
-
+    this.spawnObstacle();
+    
     this.playerBox.scale.set(50, 200, 20);
     this.playerBox.position.set(0, 90, 0);
     this.player.add(this.playerBox);
     this.coinObject = await this.fbxLoader.loadAsync('../../assets/models/coin.fbx');
     this.coinObject.rotation.set(90 * (Math.PI / 180), 0, 150 * (Math.PI / 180));
-
+    
     this.generateLeftCenterRightCoins();
 
     this.generateLeftSideCoin();
@@ -191,11 +197,9 @@ export default class RunningScene extends Scene {
         this.handleTouch();
       }, false);
     }
-
   }
 
   initialize() {
-    
     document.onkeydown = (e) => {
       if (!this.isGameOver && !this.isGamePaused) {
         if (e.key === 'ArrowLeft') {
@@ -214,18 +218,12 @@ export default class RunningScene extends Scene {
         }
       }
     };
-
-
-
     (document.querySelector('.scores-container') as HTMLInputElement).style.display = 'block';
-
     (document.querySelector('.coins-container') as HTMLInputElement).style.display = 'block';
-
-    (document.querySelector('.pause-button') as HTMLInputElement).style.display = 'block';
+    // (document.querySelector('.pause-button') as HTMLInputElement).style.display = 'block';
     (document.querySelector('.pause-button') as HTMLInputElement).onclick = () => {
       this.pauseAndResumeGame();
     };
-
     (document.getElementById('resume-button') as HTMLInputElement).onclick = () => {
       this.pauseAndResumeGame();
     };
@@ -235,16 +233,8 @@ export default class RunningScene extends Scene {
     setTimeout(() => {
       this.isPlayerHeadStart = true;
     }, 3000);
-    if (this.isPlayerHeadStart) {
-      this.spawnObstacle();
-      this.spawnCoin();
-    }
-
-
   }
 
-
-    
   update() {
     if (this.animationMixer) {
       this.delta = this.clock.getDelta();
@@ -252,29 +242,36 @@ export default class RunningScene extends Scene {
     }
     this.woodenCave.position.z += this.speed * this.delta;
     this.woodenCaveClone.position.z += this.speed * this.delta;
-    if (this.woodenCave.position.z > 600) {
+    
+    if (this.woodenCave.position.z > 770) {
       this.woodenCave.position.z = this.woodenCaveClone.position.z - this.caveSize;
     }
 
-    if (this.woodenCaveClone.position.z > 600) {
+    if (this.woodenCaveClone.position.z > 770) {
       this.woodenCaveClone.position.z = this.woodenCave.position.z - this.caveSize;
     }
-
+    
+    
     TWEEN.update();
-    this.spawnObstacle();
     this.playerBoxCollider.setFromObject(this.playerBox);
     this.detectCollisionWithObstacles();
     this.spawnCoin();
     this.detectCollisionWithCoins();
     this.scores += Math.round(this.speed * this.delta);
     (document.querySelector('.scores-count') as HTMLInputElement).innerHTML = this.scores.toString();
+    if (this.isPlayerHeadStart) {
+      this.spawnObstacle();
+      this.spawnCoin();
+    }
     if (!this.isGameOver && this.speed < 400 && !this.isGamePaused ) {
-      this.speed += 0.06;
+      this.speed += 0.05;
     }
 
+
   }
+
   hide() {}
-  
+
   private moveLeft() {
     if (this.player.position.x !== -18) {
       const tweenLeft = new TWEEN.Tween(this.player.position)
@@ -341,7 +338,7 @@ export default class RunningScene extends Scene {
     }
   }
 
-
+  
   private slide() {
     if (!this.isSliding) {
       if (this.isJumping) {
@@ -384,334 +381,352 @@ export default class RunningScene extends Scene {
     meshGroup.visible = true;
     this.obstacleArray.push(meshGroup);
   }
-
-  private createCenterJumpObstacle() {
-    const meshGroup = new Group();
-    const mesh = this.barrelObject.clone();
-    mesh.scale.set(0.03, 0.03, 0.03);
-    mesh.position.set(-20, -25, 0);
-    meshGroup.add(mesh);
-    const mesh2 = this.barrelObject.clone();
-    mesh2.scale.set(0.03, 0.03, 0.03);
-    mesh2.position.set(20, -25, 0);
-    meshGroup.add(mesh2);
-    const mesh3 = this.spikeObject.clone();
-    mesh3.scale.set(0.06, 0.06, 0.06);
-    mesh3.position.set(0, -31, 0);
-    meshGroup.add(mesh3);
-    meshGroup.position.set(0, 0, -1200);
-    this.add(meshGroup);
-    meshGroup.visible = false;
-    this.obstacleArray.push(meshGroup);
-  }
-  private createRightJumpObstacle() {
-    const meshGroup = new Group();
-    const mesh = this.barrelObject.clone();
-    mesh.scale.set(0.03, 0.03, 0.03);
-    mesh.position.set(-20, -25, 0);
-    meshGroup.add(mesh);
-    const mesh2 = this.barrelObject.clone();
-    mesh2.scale.set(0.03, 0.03, 0.03);
-    mesh2.position.set(0, -25, 0);
-    meshGroup.add(mesh2);
-    const mesh3 = this.spikeObject.clone();
-    mesh3.scale.set(0.06, 0.06, 0.06);
-    mesh3.position.set(20, -31, 0);
-    meshGroup.add(mesh3);
-    meshGroup.position.set(0, 0, -1200);
-    this.add(meshGroup);
-    meshGroup.visible = false;
-    this.obstacleArray.push(meshGroup);
-  }
-  private createRightCenterObstacle() {
-    const meshGroup = new Group();
-    const mesh = this.barrelObject.clone();
-    mesh.scale.set(0.03, 0.03, 0.03);
-    mesh.position.set(0, -25, 0);
-    meshGroup.add(mesh);
-    const mesh2 = this.barrelObject.clone();
-    mesh2.scale.set(0.03, 0.03, 0.03);
-    mesh2.position.set(20, -25, 0);
-    meshGroup.add(mesh2);
-    meshGroup.position.set(0, 0, -1200);
-    this.add(meshGroup);
-    meshGroup.visible = false;
-    this.obstacleArray.push(meshGroup);
-  }
-  private createLeftCenterObstacle() {
-    const meshGroup = new Group();
-    const mesh = this.barrelObject.clone();
-    mesh.scale.set(0.03, 0.03, 0.03);
-    mesh.position.set(-20, -25, 0);
-    meshGroup.add(mesh);
-    const mesh2 = this.barrelObject.clone();
-    mesh2.scale.set(0.03, 0.03, 0.03);
-    mesh2.position.set(0, -25, 0);
-    meshGroup.add(mesh2);
-    meshGroup.position.set(0, 0, -1200);
-    this.add(meshGroup);
-    meshGroup.visible = false;
-    this.obstacleArray.push(meshGroup);
-  }
-  private createLeftRightObstacle() {
-    const meshGroup = new Group();
-    const mesh = this.barrelObject.clone();
-    mesh.scale.set(0.03, 0.03, 0.03);
-    mesh.position.set(-20, -25, 0);
-    meshGroup.add(mesh);
-    const mesh2 = this.barrelObject.clone();
-    mesh2.scale.set(0.03, 0.03, 0.03);
-    mesh2.position.set(20, -25, 0);
-    meshGroup.add(mesh2);
-    meshGroup.position.set(0, 0, -1200);
-    this.add(meshGroup);
-    meshGroup.visible = false;
-    this.obstacleArray.push(meshGroup);
-  }
-  private createCenterRightObstacle() {
-    const meshGroup = new Group();
-    const mesh = this.barrelObject.clone();
-    mesh.scale.set(0.031, 0.031, 0.031);
-    mesh.position.set(-20, -25, 0);
-    meshGroup.add(mesh);
-    const mesh2 = this.barrelObject.clone();
-    mesh2.scale.set(0.03, 0.03, 0.03);
-    mesh2.position.set(20, -25, 0);
-    meshGroup.add(mesh2);
-    meshGroup.position.set(0, 0, -1200);
-    this.add(meshGroup);
-    meshGroup.visible = false;
-    this.obstacleArray.push(meshGroup);
-  }
-  private createCenterSlideObstacle() {
-    const meshGroup = new Group();
-    const geometry = new BoxGeometry();
-    const material = new MeshPhongMaterial({ color: 'brown' });
-    const plank = new Mesh(geometry, material);
-    meshGroup.add(plank);
-    plank.position.set(0, -20, 0);
-    plank.scale.set(40, 0.5, 7);
-    const mesh = this.barrelObject.clone();
-    mesh.scale.set(0.03, 0.03, 0.03);
-    mesh.position.set(-20, -25, 0);
-    meshGroup.add(mesh);
-    const mesh2 = this.barrelObject.clone();
-    mesh2.scale.set(0.03, 0.03, 0.03);
-    mesh2.position.set(20, -25, 0);
-    meshGroup.add(mesh2);
-    const mesh3 = this.boxObject.clone();
-    mesh3.scale.set(4, 2, 2);
-    mesh3.position.set(0, -19, 3);
-    meshGroup.add(mesh3);
-    meshGroup.position.set(0, 0, -1200);
-    this.add(meshGroup);
-    meshGroup.visible = false;
-    this.obstacleArray.push(meshGroup);
-  }
-  private createRightSlideObstacle() {
-    const meshGroup = new Group();
-    const geometry = new BoxGeometry();
-    const material = new MeshPhongMaterial({ color: 'brown' });
-    const plank = new Mesh(geometry, material);
-    meshGroup.add(plank);
-    plank.position.set(20, -20, 0);
-    plank.scale.set(40, 0.5, 7);
-    const mesh = this.barrelObject.clone();
-    mesh.scale.set(0.03, 0.03, 0.03);
-    mesh.position.set(-20, -25, 0);
-    meshGroup.add(mesh);
-    const mesh2 = this.barrelObject.clone();
-    mesh2.scale.set(0.03, 0.03, 0.03);
-    mesh2.position.set(0, -25, 0);
-    meshGroup.add(mesh2);
-    const mesh3 = this.boxObject.clone();
-    mesh3.scale.set(4, 2, 2);
-    mesh3.position.set(20, -19, 3);
-    meshGroup.add(mesh3);
-    meshGroup.position.set(0, 0, -1200);
-    this.add(meshGroup);
-    meshGroup.visible = false;
-    this.obstacleArray.push(meshGroup);
-  }
-  private createLeftSlideObstacle() {
-    const meshGroup = new Group();
-    const geometry = new BoxGeometry();
-    const material = new MeshPhongMaterial({ color: 'brown' });
-    const plank = new Mesh(geometry, material);
-    meshGroup.add(plank);
-    plank.position.set(-20, -20, 0);
-    plank.scale.set(40, 0.5, 7);
-    const mesh = this.barrelObject.clone();
-    mesh.scale.set(0.03, 0.03, 0.03);
-    mesh.position.set(20, -25, 0);
-    meshGroup.add(mesh);
-    const mesh2 = this.barrelObject.clone();
-    mesh2.scale.set(0.03, 0.03, 0.03);
-    mesh2.position.set(0, -25, 0);
-    meshGroup.add(mesh2);
-    const mesh3 = this.boxObject.clone();
-    mesh3.scale.set(4, 2, 2);
-    mesh3.position.set(-20, -19, 3);
-    meshGroup.add(mesh3);
-    meshGroup.position.set(0, 0, -1200);
-    this.add(meshGroup);
-    meshGroup.visible = false;
-    this.obstacleArray.push(meshGroup);
-  }
-
-  private createRandomObstacle() {
-    let randomNum = Math.floor(Math.random() * this.obstacleArray.length);
-
-    while (this.obstacleArray[randomNum] === this.currentObstacleOne
-      || this.obstacleArray[randomNum] === this.currentObstacleTwo) {
-      randomNum = Math.floor(Math.random() * this.obstacleArray.length);
-    }
-    return this.obstacleArray[randomNum];
-  }
-  private spawnObstacle() {
-    if (!this.currentObstacleOne.visible) {
-      this.currentObstacleOne.visible = true;
-    }
-
-    if (!this.currentObstacleTwo.visible) {
-      this.currentObstacleTwo.visible = true;
-      this.currentObstacleTwo.position.z = this.currentObstacleOne.position.z - 450;
-    }
-
-    this.currentObstacleOne.position.z += this.speed * this.delta;
-    this.currentObstacleTwo.position.z += this.speed * this.delta;
-
-    if (this.currentObstacleOne.position.z > -40) {
-      this.currentObstacleOne.visible = false;
-      this.currentObstacleOne.position.z = -1100;
-      this.currentObstacleOne = this.createRandomObstacle();
-    }
-
-    if (this.currentObstacleTwo.position.z > -40) {
-      this.currentObstacleTwo.visible = false;
-      this.currentObstacleTwo.position.z = this.currentObstacleOne.position.z - 450;
-      this.currentObstacleTwo = this.createRandomObstacle();
-    }
-  }
-
-  private detectCollisionWithObstacles() {
-    for (let i = 0; i < this.currentObstacleOne.children.length; i += 1) {
-      this.obstacleBox.setFromObject(this.currentObstacleOne.children[i]);
-      if (this.playerBoxCollider.intersectsBox(this.obstacleBox)) {
-        this.gameOver();
-      }
-    }
-    for (let i = 0; i < this.currentObstacleTwo.children.length; i += 1) {
-      this.obstacleBox2.setFromObject(this.currentObstacleTwo.children[i]);
-
-      if (this.playerBoxCollider.intersectsBox(this.obstacleBox2)) {
-        this.gameOver();
-      }
-    }
-  }
-  private generateLeftCenterRightCoins() {
-    const coinsGroup = new Group();
-    for (let i = 0; i < 5; i += 1) {
-      const leftCoin = this.coinObject.clone();
-      const centerCoin = this.coinObject.clone();
-      const rightCoin = this.coinObject.clone();
-      leftCoin.position.set(-18, -12, -i * 20);
-      centerCoin.position.set(0, -12, -i * 20);
-      rightCoin.position.set(18, -12, -i * 20);
-      leftCoin.scale.set(0.035, 0.035, 0.035);
-      centerCoin.scale.set(0.035, 0.035, 0.035);
-      rightCoin.scale.set(0.035, 0.035, 0.035);
-      coinsGroup.add(leftCoin, centerCoin, rightCoin);
-    }
-  coinsGroup.position.set(0, -20, -1200);
-    this.add(coinsGroup);
-    coinsGroup.visible = false;
-    this.coinsArray.push(coinsGroup);
-  }
-  private generateLeftSideCoin() {
-    const coinsGroup = new Group();
-    for (let i = 0; i < 5; i += 1) {
-      const leftCoin = this.coinObject.clone();
-      leftCoin.position.set(-18, -12, -i * 20);
-      leftCoin.scale.set(0.035, 0.035, 0.035);
-      coinsGroup.add(leftCoin);
-    }
-    coinsGroup.position.set(0, -20, -1200);
-    this.add(coinsGroup);
-    coinsGroup.visible = false;
-    this.coinsArray.push(coinsGroup);
-  }
-
-  private generateLeftandCenterCoins() {
-    const coinsGroup = new Group();
-    for (let i = 0; i < 5; i += 1) {
-      const leftCoin = this.coinObject.clone();
-      const centerCoin = this.coinObject.clone();
-      leftCoin.position.set(-18, -12, -i * 20);
-      centerCoin.position.set(0, -12, -i * 20);
-      leftCoin.scale.set(0.035, 0.035, 0.035);
-      centerCoin.scale.set(0.035, 0.035, 0.035);
-      coinsGroup.add(leftCoin, centerCoin);
-    }
-    coinsGroup.position.set(0, -20, -1200);
-    this.add(coinsGroup);
-    coinsGroup.visible = false;
-    this.coinsArray.push(coinsGroup);
-  }
-  private generateCenterRightCoins() {
-    const coinsGroup = new Group();
-    for (let i = 0; i < 5; i += 1) {
-      const centerCoin = this.coinObject.clone();
-      const rightCoin = this.coinObject.clone();
-      centerCoin.position.set(0, -12, -i * 20);
-      rightCoin.position.set(18, -12, -i * 20);
-      coinsGroup.add(centerCoin, rightCoin);
-      centerCoin.scale.set(0.035, 0.035, 0.035);
-      rightCoin.scale.set(0.035, 0.035, 0.035);
-    }
-    coinsGroup.position.set(0, -20, -1200);
-    this.add(coinsGroup);
-    coinsGroup.visible = false;
-    this.coinsArray.push(coinsGroup);
-  }
-  private generateRightCoins() {
-    const coinsGroup = new Group();
-    for (let i = 0; i < 5; i += 1) {
-      const rightCoin = this.coinObject.clone();
-      rightCoin.position.set(18, -12, -i * 20);
-      coinsGroup.add(rightCoin);
-      rightCoin.scale.set(0.035, 0.035, 0.035);
-    }
-    coinsGroup.position.set(0, -20, -1200);
-    this.add(coinsGroup);
-    coinsGroup.visible = false;
-    this.coinsArray.push(coinsGroup);
-  }
-  private generateRandomCoins() {
-    const randNum = Math.floor(Math.random() * this.coinsArray.length);
-    this.activeCoinsGroup = this.coinsArray[randNum];
-  }
-  private spawnCoin() {
-    if (!this.activeCoinsGroup.visible) {
-      this.activeCoinsGroup.visible = true;
-    }
-
-    this.activeCoinsGroup.position.z += 0.8 * this.speed * this.delta;
-    if (this.activeCoinsGroup.position.z > 50) {
-      for (let i = 0; i < this.activeCoinsGroup.children.length; i += 1) {
-        if (!this.activeCoinsGroup.children[i].visible) {
-          this.activeCoinsGroup.children[i].visible = true;
-        }
-      }
-      this.activeCoinsGroup.visible = false;
-      this.activeCoinsGroup.position.z = -1200;
-      this.generateRandomCoins();
-    }
-  }
-
   
+ private createCenterJumpObstacle() {
+  const meshGroup = new Group();
+  const mesh = this.barrelObject.clone();
+  mesh.scale.set(0.03, 0.03, 0.03);
+  mesh.position.set(-20, -25, 0);
+  meshGroup.add(mesh);
+  const mesh2 = this.barrelObject.clone();
+  mesh2.scale.set(0.03, 0.03, 0.03);
+  mesh2.position.set(20, -25, 0);
+  meshGroup.add(mesh2);
+  const mesh3 = this.spikeObject.clone();
+  mesh3.scale.set(0.06, 0.06, 0.06);
+  mesh3.position.set(0, -31, 0);
+  meshGroup.add(mesh3);
+  meshGroup.position.set(0, 0, -1200);
+  this.add(meshGroup);
+  meshGroup.visible = false;
+  this.obstacleArray.push(meshGroup);
+}
+private createRightJumpObstacle() {
+  const meshGroup = new Group();
+  const mesh = this.barrelObject.clone();
+  mesh.scale.set(0.03, 0.03, 0.03);
+  mesh.position.set(-20, -25, 0);
+  meshGroup.add(mesh);
+  const mesh2 = this.barrelObject.clone();
+  mesh2.scale.set(0.03, 0.03, 0.03);
+  mesh2.position.set(0, -25, 0);
+  meshGroup.add(mesh2);
+  const mesh3 = this.spikeObject.clone();
+  mesh3.scale.set(0.06, 0.06, 0.06);
+  mesh3.position.set(20, -31, 0);
+  meshGroup.add(mesh3);
+  meshGroup.position.set(0, 0, -1200);
+  this.add(meshGroup);
+  meshGroup.visible = false;
+  this.obstacleArray.push(meshGroup);
+}
+private createRightCenterObstacle() {
+  const meshGroup = new Group();
+  const mesh = this.barrelObject.clone();
+  mesh.scale.set(0.03, 0.03, 0.03);
+  mesh.position.set(0, -25, 0);
+  meshGroup.add(mesh);
+  const mesh2 = this.barrelObject.clone();
+  mesh2.scale.set(0.03, 0.03, 0.03);
+  mesh2.position.set(20, -25, 0);
+  meshGroup.add(mesh2);
+  meshGroup.position.set(0, 0, -1200);
+  this.add(meshGroup);
+  meshGroup.visible = false;
+  this.obstacleArray.push(meshGroup);
+}
+private createLeftCenterObstacle() {
+  const meshGroup = new Group();
+  const mesh = this.barrelObject.clone();
+  mesh.scale.set(0.03, 0.03, 0.03);
+  mesh.position.set(-20, -25, 0);
+  meshGroup.add(mesh);
+  const mesh2 = this.barrelObject.clone();
+  mesh2.scale.set(0.03, 0.03, 0.03);
+  mesh2.position.set(0, -25, 0);
+  meshGroup.add(mesh2);
+  meshGroup.position.set(0, 0, -1200);
+  this.add(meshGroup);
+  meshGroup.visible = false;
+  this.obstacleArray.push(meshGroup);
+}
+private createLeftRightObstacle() {
+  const meshGroup = new Group();
+  const mesh = this.barrelObject.clone();
+  mesh.scale.set(0.03, 0.03, 0.03);
+  mesh.position.set(-20, -25, 0);
+  meshGroup.add(mesh);
+  const mesh2 = this.barrelObject.clone();
+  mesh2.scale.set(0.03, 0.03, 0.03);
+  mesh2.position.set(20, -25, 0);
+  meshGroup.add(mesh2);
+  meshGroup.position.set(0, 0, -1200);
+  this.add(meshGroup);
+  meshGroup.visible = false;
+  this.obstacleArray.push(meshGroup);
+}
+private createCenterRightObstacle() {
+  const meshGroup = new Group();
+  const mesh = this.barrelObject.clone();
+  mesh.scale.set(0.031, 0.031, 0.031);
+  mesh.position.set(-20, -25, 0);
+  meshGroup.add(mesh);
+  const mesh2 = this.barrelObject.clone();
+  mesh2.scale.set(0.03, 0.03, 0.03);
+  mesh2.position.set(20, -25, 0);
+  meshGroup.add(mesh2);
+  meshGroup.position.set(0, 0, -1200);
+  this.add(meshGroup);
+  meshGroup.visible = false;
+  this.obstacleArray.push(meshGroup);
+}
+private createCenterSlideObstacle() {
+  const meshGroup = new Group();
+  const geometry = new BoxGeometry();
+  const material = new MeshPhongMaterial({ color: 'brown' });
+  const plank = new Mesh(geometry, material);
+  meshGroup.add(plank);
+  plank.position.set(0, -20, 0);
+  plank.scale.set(40, 0.5, 7);
+  const mesh = this.barrelObject.clone();
+  mesh.scale.set(0.03, 0.03, 0.03);
+  mesh.position.set(-20, -25, 0);
+  meshGroup.add(mesh);
+  const mesh2 = this.barrelObject.clone();
+  mesh2.scale.set(0.03, 0.03, 0.03);
+  mesh2.position.set(20, -25, 0);
+  meshGroup.add(mesh2);
+  const mesh3 = this.boxObject.clone();
+  mesh3.scale.set(4, 2, 2);
+  mesh3.position.set(0, -19, 3);
+  meshGroup.add(mesh3);
+  meshGroup.position.set(0, 0, -1200);
+  this.add(meshGroup);
+  meshGroup.visible = false;
+  this.obstacleArray.push(meshGroup);
+}
+private createRightSlideObstacle() {
+  const meshGroup = new Group();
+  const geometry = new BoxGeometry();
+  const material = new MeshPhongMaterial({ color: 'brown' });
+  const plank = new Mesh(geometry, material);
+  meshGroup.add(plank);
+  plank.position.set(20, -20, 0);
+  plank.scale.set(40, 0.5, 7);
+  const mesh = this.barrelObject.clone();
+  mesh.scale.set(0.03, 0.03, 0.03);
+  mesh.position.set(-20, -25, 0);
+  meshGroup.add(mesh);
+  const mesh2 = this.barrelObject.clone();
+  mesh2.scale.set(0.03, 0.03, 0.03);
+  mesh2.position.set(0, -25, 0);
+  meshGroup.add(mesh2);
+  const mesh3 = this.boxObject.clone();
+  mesh3.scale.set(4, 2, 2);
+  mesh3.position.set(20, -19, 3);
+  meshGroup.add(mesh3);
+  meshGroup.position.set(0, 0, -1200);
+  this.add(meshGroup);
+  meshGroup.visible = false;
+  this.obstacleArray.push(meshGroup);
+}
+private createLeftSlideObstacle() {
+  const meshGroup = new Group();
+  const geometry = new BoxGeometry();
+  const material = new MeshPhongMaterial({ color: 'brown' });
+  const plank = new Mesh(geometry, material);
+  meshGroup.add(plank);
+  plank.position.set(-20, -20, 0);
+  plank.scale.set(40, 0.5, 7);
+  const mesh = this.barrelObject.clone();
+  mesh.scale.set(0.03, 0.03, 0.03);
+  mesh.position.set(20, -25, 0);
+  meshGroup.add(mesh);
+  const mesh2 = this.barrelObject.clone();
+  mesh2.scale.set(0.03, 0.03, 0.03);
+  mesh2.position.set(0, -25, 0);
+  meshGroup.add(mesh2);
+  const mesh3 = this.boxObject.clone();
+  mesh3.scale.set(4, 2, 2);
+  mesh3.position.set(-20, -19, 3);
+  meshGroup.add(mesh3);
+  meshGroup.position.set(0, 0, -1200);
+  this.add(meshGroup);
+  meshGroup.visible = false;
+  this.obstacleArray.push(meshGroup);
+}
 
+private createRandomObstacle() {
+  let randomNum = Math.floor(Math.random() * this.obstacleArray.length);
 
+  while (this.obstacleArray[randomNum] === this.currentObstacleOne
+    || this.obstacleArray[randomNum] === this.currentObstacleTwo) {
+    randomNum = Math.floor(Math.random() * this.obstacleArray.length);
+  }
+  return this.obstacleArray[randomNum];
+}
+private spawnObstacle() {
+  if (!this.currentObstacleOne.visible) {
+    this.currentObstacleOne.visible = true;
+  }
+
+  if (!this.currentObstacleTwo.visible) {
+    this.currentObstacleTwo.visible = true;
+    this.currentObstacleTwo.position.z = this.currentObstacleOne.position.z - 450;
+  }
+
+  this.currentObstacleOne.position.z += this.speed * this.delta;
+  this.currentObstacleTwo.position.z += this.speed * this.delta;
+
+  if (this.currentObstacleOne.position.z > -40) {
+    this.currentObstacleOne.visible = false;
+    this.currentObstacleOne.position.z = -1100;
+    this.currentObstacleOne = this.createRandomObstacle();
+  }
+
+  if (this.currentObstacleTwo.position.z > -40) {
+    this.currentObstacleTwo.visible = false;
+    this.currentObstacleTwo.position.z = this.currentObstacleOne.position.z - 450;
+    this.currentObstacleTwo = this.createRandomObstacle();
+  }
+}
+
+private detectCollisionWithObstacles() {
+  for (let i = 0; i < this.currentObstacleOne.children.length; i += 1) {
+    this.obstacleBox.setFromObject(this.currentObstacleOne.children[i]);
+    if (this.playerBoxCollider.intersectsBox(this.obstacleBox)) {
+      this.gameOver();
+    }
+  }
+  for (let i = 0; i < this.currentObstacleTwo.children.length; i += 1) {
+    this.obstacleBox2.setFromObject(this.currentObstacleTwo.children[i]);
+    if (this.playerBoxCollider.intersectsBox(this.obstacleBox2)) {
+      this.gameOver();
+    }
+  }
+}
+private generateLeftCenterRightCoins() {
+  const coinsGroup = new Group();
+  for (let i = 0; i < 5; i += 1) {
+    const leftCoin = this.coinObject.clone();
+    const centerCoin = this.coinObject.clone();
+    const rightCoin = this.coinObject.clone();
+    leftCoin.position.set(-18, -12, -i * 20);
+    centerCoin.position.set(0, -12, -i * 20);
+    rightCoin.position.set(18, -12, -i * 20);
+    leftCoin.scale.set(0.035, 0.035, 0.035);
+    centerCoin.scale.set(0.035, 0.035, 0.035);
+    rightCoin.scale.set(0.035, 0.035, 0.035);
+    coinsGroup.add(leftCoin, centerCoin, rightCoin);
+  }
+coinsGroup.position.set(0, -20, -1200);
+  this.add(coinsGroup);
+  coinsGroup.visible = false;
+  this.coinsArray.push(coinsGroup);
+}
+
+private generateLeftSideCoin() {
+  const coinsGroup = new Group();
+  for (let i = 0; i < 5; i += 1) {
+    const leftCoin = this.coinObject.clone();
+    leftCoin.position.set(-18, -12, -i * 20);
+    leftCoin.scale.set(0.035, 0.035, 0.035);
+    coinsGroup.add(leftCoin);
+  }
+  coinsGroup.position.set(0, -20, -1200);
+  this.add(coinsGroup);
+  coinsGroup.visible = false;
+  this.coinsArray.push(coinsGroup);
+}
+private generateLeftandCenterCoins() {
+  const coinsGroup = new Group();
+  for (let i = 0; i < 5; i += 1) {
+    const leftCoin = this.coinObject.clone();
+    const centerCoin = this.coinObject.clone();
+    leftCoin.position.set(-18, -12, -i * 20);
+    centerCoin.position.set(0, -12, -i * 20);
+    leftCoin.scale.set(0.035, 0.035, 0.035);
+    centerCoin.scale.set(0.035, 0.035, 0.035);
+    coinsGroup.add(leftCoin, centerCoin);
+  }
+  coinsGroup.position.set(0, -20, -1200);
+  this.add(coinsGroup);
+  coinsGroup.visible = false;
+  this.coinsArray.push(coinsGroup);
+}
+private generateCenterRightCoins() {
+  const coinsGroup = new Group();
+  for (let i = 0; i < 5; i += 1) {
+    const centerCoin = this.coinObject.clone();
+    const rightCoin = this.coinObject.clone();
+    centerCoin.position.set(0, -12, -i * 20);
+    rightCoin.position.set(18, -12, -i * 20);
+    coinsGroup.add(centerCoin, rightCoin);
+    centerCoin.scale.set(0.035, 0.035, 0.035);
+    rightCoin.scale.set(0.035, 0.035, 0.035);
+  }
+  coinsGroup.position.set(0, -20, -1200);
+  this.add(coinsGroup);
+  coinsGroup.visible = false;
+  this.coinsArray.push(coinsGroup);
+}
+private generateRightCoins() {
+  const coinsGroup = new Group();
+  for (let i = 0; i < 5; i += 1) {
+    const rightCoin = this.coinObject.clone();
+    rightCoin.position.set(18, -12, -i * 20);
+    coinsGroup.add(rightCoin);
+    rightCoin.scale.set(0.035, 0.035, 0.035);
+  }
+  coinsGroup.position.set(0, -20, -1200);
+  this.add(coinsGroup);
+  coinsGroup.visible = false;
+  this.coinsArray.push(coinsGroup);
+}
+private generateRandomCoins() {
+  const randNum = Math.floor(Math.random() * this.coinsArray.length);
+  this.activeCoinsGroup = this.coinsArray[randNum];
+}
+private spawnCoin() {
+  if (!this.activeCoinsGroup.visible) {
+    this.activeCoinsGroup.visible = true;
+  }
+
+  this.activeCoinsGroup.position.z += 0.8 * this.speed * this.delta;
+  if (this.activeCoinsGroup.position.z > 50) {
+    for (let i = 0; i < this.activeCoinsGroup.children.length; i += 1) {
+      if (!this.activeCoinsGroup.children[i].visible) {
+        this.activeCoinsGroup.children[i].visible = true;
+      }
+    }
+    this.activeCoinsGroup.visible = false;
+    this.activeCoinsGroup.position.z = -1200;
+    this.generateRandomCoins();
+  }
+}
+
+private gameOver() {
+  this.isGameOver = true;
+  this.speed = 0;
+    (document.querySelector('.disable-touch') as HTMLInputElement).style.display = 'block';
+    (document.querySelector('.pause-button') as HTMLInputElement).style.display = 'none';
+  setTimeout(() => {
+    this.clock.stop();
+    (document.getElementById('game-over-modal') as HTMLInputElement).style.display = 'block';
+    (document.querySelector('#current-score') as HTMLInputElement).innerHTML = this.scores.toString();
+    (document.querySelector('#current-coins') as HTMLInputElement).innerHTML = this.coins.toString();
+    this.stumbleAnimation.reset();
+    this.player.visible = false;
+  }, 3000);
+  this.stumbleAnimation.reset();
+  this.currentAnimation.crossFadeTo(this.stumbleAnimation, 0, false).play();
+  this.currentAnimation = this.stumbleAnimation;
+  this.currentObstacleOne.position.z -= 5;
+  this.currentObstacleTwo.position.z -= 5;
+  this.isPlayerHeadStart= false;
+  this.saveCoins();
+  this.saveHighScore();
+}
 
 
 private detectCollisionWithCoins() {
@@ -731,6 +746,7 @@ private detectCollisionWithCoins() {
   }
 }
 private restartGame() {
+  this.player.visible = true;
   (document.getElementById('game-over-modal') as HTMLInputElement).style.display = 'none';
   this.currentObstacleOne.position.z = -1200;
   this.currentObstacleTwo.position.z = -1500;
@@ -752,11 +768,8 @@ private restartGame() {
     this.isPlayerHeadStart= true;
   }, 3000);
   (document.querySelector('.disable-touch') as HTMLInputElement).style.display = 'none';
-  this.player.visible = true;
 
 }
-
-
 private saveHighScore() {
   const highScore = localStorage.getItem('high-score') || 0;
   if (Number(this.scores) > Number(highScore)) {
@@ -767,29 +780,6 @@ private saveCoins() {
   const prevTotalCoins = localStorage.getItem('total-coins') || 0;
   const totalCoins = Number(prevTotalCoins) + this.coins;
   localStorage.setItem('coins', totalCoins.toString());
-}
-private gameOver() {
-  this.isGameOver = true;
-  this.speed = 0;
-  (document.querySelector('.pause-button') as HTMLInputElement).style.display = 'none';
-  setTimeout(() => {
-    this.clock.stop();
-    (document.getElementById('game-over-modal') as HTMLInputElement).style.display = 'block';
-    (document.querySelector('#current-score') as HTMLInputElement).innerHTML = this.scores.toString();
-    (document.querySelector('#current-coins') as HTMLInputElement).innerHTML = this.coins.toString();
-    this.stumbleAnimation.reset();
-    this.player.visible = false;
-  }, 3000);
-  this.stumbleAnimation.reset();
-  this.currentAnimation.crossFadeTo(this.stumbleAnimation, 0, false).play();
-  this.currentAnimation = this.stumbleAnimation;
-  this.currentObstacleOne.position.z -= 5;
-  this.currentObstacleTwo.position.z -= 5;
-  this.isPlayerHeadStart= false;
-  this.saveCoins();
-  this.saveHighScore();
-  (document.querySelector('.disable-touch') as HTMLInputElement).style.display = 'block';
-
 }
 pauseAndResumeGame() {
   if (!this.isGamePaused ) {
@@ -830,7 +820,6 @@ private handleTouch = () => {
     }
   }
 };
-
 
 
 }

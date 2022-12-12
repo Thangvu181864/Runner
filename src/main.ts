@@ -13,8 +13,8 @@ const renderer = new WebGLRenderer({
 
 renderer.setSize(width, height);
 
-const mainCamera = new PerspectiveCamera(40, width / height, 0.1, 1000);
-mainCamera.position.z = 5;
+const mainCamera = new PerspectiveCamera(50, width / height, 0.1, 1000);
+mainCamera.position.z = 10;
 //move camera with mouse
 document.addEventListener("mousemove", (e) => {
   mainCamera.position.x = (e.clientX / width) * 10 - 10;
