@@ -109,13 +109,10 @@ export default class RunningScene extends Scene {
     this.add(this.player); 
 
     this.woodenCave = await this.fbxLoader.loadAsync(
-      "./assets/models/hiep.fbx"
+      "./assets/models/hiepp.fbx"
     );
-    this.woodenCave.position.set(-13, -40, -110); 
-    this.woodenCave.scale.set(0.1, 0.1, 0.15);
-    this.woodenCave.rotation.x = -90 * (Math.PI / 180);
-    this.woodenCave.rotation.y = 90 * (Math.PI / 180);
-    this.woodenCave.rotation.z = 90 * (Math.PI / 180);
+    this.woodenCave.position.set(3, 0, -500);
+    this.woodenCave.scale.set(0.055, 0.055, 0.055);
     this.add(this.woodenCave);
 
     const runningAnimationObject = await   this.fbxLoader.loadAsync('./assets/animations/hiepdv@running.fbx');
@@ -242,13 +239,13 @@ export default class RunningScene extends Scene {
     }
     this.woodenCave.position.z += this.speed * this.delta;
     this.woodenCaveClone.position.z += this.speed * this.delta;
-    
-    if (this.woodenCave.position.z > 770) {
-      this.woodenCave.position.z = this.woodenCaveClone.position.z - this.caveSize;
+
+    if (this.woodenCave.position.z > 600) {
+      this.woodenCave.position.z = this.woodenCaveClone.position.z - this.caveSize +10;
     }
 
-    if (this.woodenCaveClone.position.z > 770) {
-      this.woodenCaveClone.position.z = this.woodenCave.position.z - this.caveSize;
+    if (this.woodenCaveClone.position.z > 600) {
+      this.woodenCaveClone.position.z = this.woodenCave.position.z - this.caveSize +10;
     }
     
     
@@ -705,29 +702,6 @@ private spawnCoin() {
   }
 }
 
-private gameOver() {
-  this.isGameOver = true;
-  this.speed = 0;
-    (document.querySelector('.disable-touch') as HTMLInputElement).style.display = 'block';
-    (document.querySelector('.pause-button') as HTMLInputElement).style.display = 'none';
-  setTimeout(() => {
-    this.clock.stop();
-    (document.getElementById('game-over-modal') as HTMLInputElement).style.display = 'block';
-    (document.querySelector('#current-score') as HTMLInputElement).innerHTML = this.scores.toString();
-    (document.querySelector('#current-coins') as HTMLInputElement).innerHTML = this.coins.toString();
-    this.stumbleAnimation.reset();
-    this.player.visible = false;
-  }, 3000);
-  this.stumbleAnimation.reset();
-  this.currentAnimation.crossFadeTo(this.stumbleAnimation, 0, false).play();
-  this.currentAnimation = this.stumbleAnimation;
-  this.currentObstacleOne.position.z -= 5;
-  this.currentObstacleTwo.position.z -= 5;
-  this.isPlayerHeadStart= false;
-  this.saveCoins();
-  this.saveHighScore();
-}
-
 
 private detectCollisionWithCoins() {
   for (let i = 0; i < this.activeCoinsGroup.children.length; i += 1) {
@@ -780,6 +754,28 @@ private saveCoins() {
   const prevTotalCoins = localStorage.getItem('total-coins') || 0;
   const totalCoins = Number(prevTotalCoins) + this.coins;
   localStorage.setItem('coins', totalCoins.toString());
+}
+private gameOver() {
+  this.isGameOver = true;
+  this.speed = 0;
+  (document.querySelector('.pause-button') as HTMLInputElement).style.display = 'none';
+  setTimeout(() => {
+    this.clock.stop();
+    (document.getElementById('game-over-modal') as HTMLInputElement).style.display = 'block';
+    (document.querySelector('#current-score') as HTMLInputElement).innerHTML = this.scores.toString();
+    (document.querySelector('#current-coins') as HTMLInputElement).innerHTML = this.coins.toString();
+    this.stumbleAnimation.reset();
+  }, 3000);
+  this.stumbleAnimation.reset();
+  this.currentAnimation.crossFadeTo(this.stumbleAnimation, 0, false).play();
+  this.currentAnimation = this.stumbleAnimation;
+  this.currentObstacleOne.position.z -= 5;
+  this.currentObstacleTwo.position.z -= 5;
+  this.isPlayerHeadStart= false;
+  this.saveCoins();
+  this.saveHighScore();
+  (document.querySelector('.disable-touch') as HTMLInputElement).style.display = 'block';
+
 }
 pauseAndResumeGame() {
   if (!this.isGamePaused ) {
