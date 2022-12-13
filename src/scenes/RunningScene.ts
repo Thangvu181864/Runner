@@ -1,6 +1,6 @@
 import {
   Scene, DirectionalLight, AmbientLight, Object3D, AnimationMixer, AnimationAction, Clock,
-  Box3, Group, BoxGeometry, MeshPhongMaterial, Mesh, Vector3,
+  Box3, Group, BoxGeometry, MeshPhongMaterial, Mesh, Vector3, TextureLoader, RepeatWrapping,
 } from 'three';
 
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
@@ -96,6 +96,14 @@ export default class RunningScene extends Scene {
 
     light.position.set(0, 40, -10);
     this.add(light);
+
+    this.add(light);
+    const loader = new TextureLoader();
+    loader.load("/public/assets/models/bau.jpg", (texture) => {
+      texture.wrapS = texture.wrapT = RepeatWrapping;
+      texture.repeat.set(1, 1);
+      this.background = texture;
+    });
 
     this.tunnel = await this.fbxLoader.loadAsync('./assets/models/hiepp.fbx');
     this.tunnel.position.set(3, 0, -400);

@@ -1,5 +1,5 @@
 import {
-  Scene, Object3D, AmbientLight, DirectionalLight, Clock, AnimationMixer, AnimationAction,
+  Scene, Object3D, AmbientLight, DirectionalLight, Clock, AnimationMixer, AnimationAction, TextureLoader, RepeatWrapping,
 } from 'three';
 
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
@@ -32,6 +32,12 @@ export default class MainMenuScene extends Scene {
 
     light.position.set(0, 40, -10);
     this.add(light);
+    const loader = new TextureLoader();
+    loader.load("/public/assets/models/bau.jpg", (texture) => {
+      texture.wrapS = texture.wrapT = RepeatWrapping;
+      texture.repeat.set(1, 1);
+      this.background = texture;
+    });
 
     this.player = await this.fbxLoader.loadAsync('../../assets/characters/hiepdv.fbx');
     this.player.position.z = -110;
