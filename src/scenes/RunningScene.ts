@@ -45,8 +45,11 @@ export default class RunningScene extends Scene {
   private sliderTimeout!: ReturnType<typeof setTimeout>;
 
   private trainObject = new Object3D();
+
   private barrelObject = new Object3D();
+
   private knifeObject = new Object3D();
+
   private maceObject = new Object3D();
 
   private spikeObject = new Object3D();
@@ -467,8 +470,9 @@ export default class RunningScene extends Scene {
 
     this.currentObstacleOne.position.z += this.speed * this.delta;
     this.currentObstacleTwo.position.z += this.speed * this.delta;
-    if(this.currentObstacleOne=this.obstacleArray[0] ){
-     this.currentObstacleOne.position.x += Math.sin(this.currentObstacleOne.position.z / 100) * 0.3;
+    if (this.currentObstacleOne === this.obstacleArray[0]) {
+      // eslint-disable-next-line max-len
+      this.currentObstacleOne.position.x += Math.sin(this.currentObstacleOne.position.z / 100) * 0.3;
     }
 
     if (this.currentObstacleOne.position.z > -40) {
