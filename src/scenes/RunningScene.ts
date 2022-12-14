@@ -53,6 +53,7 @@ export default class RunningScene extends Scene {
   private maceObject = new Object3D();
 
   private spikeObject = new Object3D();
+  private rockObject = new Object3D();
 
   private obstacleArray: Group[] = [];
 
@@ -146,6 +147,7 @@ export default class RunningScene extends Scene {
     this.maceObject = await this.fbxLoader.loadAsync('../../assets/models/mace.fbx');
     this.barrelObject = await this.fbxLoader.loadAsync('../../assets/models/barrel.fbx');
     this.spikeObject = await this.fbxLoader.loadAsync('../../assets/models/spike.fbx');
+    this.rockObject = await this.fbxLoader.loadAsync('../../assets/models/rock.fbx');
 
     this.createObstacleMove();
 
@@ -571,7 +573,7 @@ export default class RunningScene extends Scene {
     mesh2.scale.set(0.09, 0.09, 0.09);
     mesh2.position.set(42, -31, 0);
     meshGroup.add(mesh2);
-    const mesh3 = this.spikeObject.clone();
+    const mesh3 = this.rockObject.clone();
     mesh3.scale.set(0.06, 0.06, 0.06);
     mesh3.position.set(-8, -31, 0);
     meshGroup.add(mesh3);
@@ -607,7 +609,7 @@ export default class RunningScene extends Scene {
     mesh2.scale.set(0.04, 0.04, 0.04);
     mesh2.position.set(20, -20, 0);
     meshGroup.add(mesh2);
-    const mesh3 = this.spikeObject.clone();
+    const mesh3 = this.rockObject.clone();
     mesh3.scale.set(0.06, 0.06, 0.06);
     mesh3.position.set(0, -31, 0);
     meshGroup.add(mesh3);
@@ -627,7 +629,7 @@ export default class RunningScene extends Scene {
     mesh2.scale.set(0.04, 0.04, 0.04);
     mesh2.position.set(-1, -20, 0);
     meshGroup.add(mesh2);
-    const mesh3 = this.spikeObject.clone();
+    const mesh3 = this.rockObject.clone();
     mesh3.scale.set(0.06, 0.06, 0.06);
     mesh3.position.set(20, -31, 0);
     meshGroup.add(mesh3);
