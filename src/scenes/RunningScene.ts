@@ -89,15 +89,17 @@ export default class RunningScene extends Scene {
   private isPlayerHeadStart = false;
 
   async load() {
-    const ambient = new AmbientLight(0xFFFFFF, 2.5);
+    const ambient = new AmbientLight(0xFFFFFF, 1.5);
     this.add(ambient);
 
-    const light = new DirectionalLight(0xFFFFFF, 2.5);
+    const light = new DirectionalLight(0xFFFFFF, 1.5);
 
+    light.castShadow = true;
     light.position.set(0, 40, -10);
+    light.target.position.set(0, 0, -100);
     this.add(light);
+    this.add(light.target);
 
-    this.add(light);
     const loader = new TextureLoader();
     loader.load("/public/assets/models/bau.jpg", (texture) => {
       texture.wrapS = texture.wrapT = RepeatWrapping;
