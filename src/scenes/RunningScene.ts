@@ -46,13 +46,10 @@ export default class RunningScene extends Scene {
 
   private trainObject = new Object3D();
 
-  private barrelObject = new Object3D();
-
   private knifeObject = new Object3D();
 
   private maceObject = new Object3D();
 
-  private spikeObject = new Object3D();
   private rockObject = new Object3D();
 
   private obstacleArray: Group[] = [];
@@ -145,8 +142,6 @@ export default class RunningScene extends Scene {
     this.trainObject = await this.fbxLoader.loadAsync('../../assets/models/train.fbx');
     this.knifeObject = await this.fbxLoader.loadAsync('../../assets/models/dao.fbx');
     this.maceObject = await this.fbxLoader.loadAsync('../../assets/models/mace.fbx');
-    this.barrelObject = await this.fbxLoader.loadAsync('../../assets/models/barrel.fbx');
-    this.spikeObject = await this.fbxLoader.loadAsync('../../assets/models/spike.fbx');
     this.rockObject = await this.fbxLoader.loadAsync('../../assets/models/rock.fbx');
 
     this.createObstacleMove();
