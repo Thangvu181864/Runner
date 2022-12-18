@@ -23,7 +23,7 @@ export default class MainMenuScene extends Scene {
 
   async load() {
     this.tunnel = await this.fbxLoader.loadAsync('./assets/models/hiepp.fbx');
-    this.tunnel.position.set(3, 0, -400);
+    this.tunnel.position.set(0, 0, -400);
     this.tunnel.scale.set(0.055, 0.055, 0.05);
     this.add(this.tunnel);
 
