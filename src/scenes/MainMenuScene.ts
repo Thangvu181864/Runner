@@ -1,4 +1,6 @@
+/* eslint-disable linebreak-style */
 import {
+  // eslint-disable-next-line max-len
   Scene, Object3D, AmbientLight, DirectionalLight, Clock, AnimationMixer, AnimationAction, TextureLoader, RepeatWrapping,
 } from 'three';
 
@@ -28,14 +30,15 @@ export default class MainMenuScene extends Scene {
     const ambient = new AmbientLight(0xFFFFFF, 1.5);
     this.add(ambient);
 
-    const light = new DirectionalLight(0xFFFFFF, 1.5);
+    const light = new DirectionalLight(0xf6b26b, 1.5);
     light.castShadow = true;
     light.position.set(0, 40, -10);
-    light.target.position.set(0, 0, -100);
+    light.target.position.set(0, 0, -60);
     this.add(light);
     this.add(light.target);
     const loader = new TextureLoader();
-    loader.load("/public/assets/models/bau.jpg", (texture) => {
+    loader.load('/public/assets/models/bau.jpg', (texture) => {
+      // eslint-disable-next-line no-param-reassign, no-multi-assign
       texture.wrapS = texture.wrapT = RepeatWrapping;
       texture.repeat.set(1, 1);
       this.background = texture;
