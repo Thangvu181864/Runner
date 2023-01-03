@@ -7,7 +7,7 @@ import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
 export default class MainMenuScene extends Scene {
   private fbxLoader = new FBXLoader();
 
-  private tunnel = new Object3D();
+  private plane = new Object3D();
 
   private player = new Object3D();
 
@@ -20,10 +20,10 @@ export default class MainMenuScene extends Scene {
   private dancingAnimation!: AnimationAction;
 
   async load() {
-    this.tunnel = await this.fbxLoader.loadAsync('./assets/models/hiepp.fbx');
-    this.tunnel.position.set(3, 0, -400);
-    this.tunnel.scale.set(0.055, 0.055, 0.05);
-    this.add(this.tunnel);
+    this.plane = await this.fbxLoader.loadAsync('./assets/models/plane.fbx');
+    this.plane.position.set(0, 0, -400);
+    this.plane.scale.set(0.055, 0.055, 0.05);
+    this.add(this.plane);
 
     const ambient = new AmbientLight(0xFFFFFF, 2.5);
     this.add(ambient);
@@ -41,10 +41,10 @@ export default class MainMenuScene extends Scene {
 
     this.player = await this.fbxLoader.loadAsync('../../assets/characters/hiepdv.fbx');
     this.player.position.z = -110;
-    this.player.position.y = -35;
+    this.player.position.y = -30;
     this.player.position.x = 0;
-    this.player.scale.set(0.11, 0.1, 0.1);
-    this.player.rotation.y = 180 * (Math.PI / 180);
+    this.player.scale.set(0.1, 0.1, 0.1);
+    this.player.rotation.y = 0 * (Math.PI / 180);
     this.add(this.player);
 
     const dancingAnimationObject = await this.fbxLoader.loadAsync('../../assets/animations/hiepdv@dancing.fbx');

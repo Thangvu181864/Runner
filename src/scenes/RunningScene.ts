@@ -1,16 +1,29 @@
 import {
-  Scene, DirectionalLight, AmbientLight, Object3D, AnimationMixer, AnimationAction, Clock,
-  Box3, Group, BoxGeometry, MeshPhongMaterial, Mesh, Vector3, TextureLoader, RepeatWrapping,
-} from 'three';
+  Scene,
+  DirectionalLight,
+  AmbientLight,
+  Object3D,
+  AnimationMixer,
+  AnimationAction,
+  Clock,
+  Box3,
+  Group,
+  BoxGeometry,
+  MeshPhongMaterial,
+  Mesh,
+  Vector3,
+  TextureLoader,
+  RepeatWrapping,
+} from "three";
 
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader';
+import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 
-import TWEEN, { Tween } from '@tweenjs/tween.js';
+import TWEEN, { Tween } from "@tweenjs/tween.js";
 
 export default class RunningScene extends Scene {
   private fbxLoader = new FBXLoader();
 
-  private tunnel = new Object3D();
+  private plane = new Object3D();
 
   private player = new Object3D();
 
@@ -22,7 +35,7 @@ export default class RunningScene extends Scene {
 
   private delta = 0;
 
-  private tunnelClone = new Object3D();
+  private planeClone = new Object3D();
 
   private caveSize = 0;
 
@@ -40,19 +53,19 @@ export default class RunningScene extends Scene {
 
   private isSliding = false;
 
-  private slidingAnimation !: AnimationAction;
+  private slidingAnimation!: AnimationAction;
 
   private sliderTimeout!: ReturnType<typeof setTimeout>;
 
-  private trainObject = new Object3D();
+  private train01Object = new Object3D();
 
-  private barrelObject = new Object3D();
+  private train02Object = new Object3D();
 
-  private knifeObject = new Object3D();
+  private fence02Object = new Object3D();
 
-  private maceObject = new Object3D();
+  private fence03Object = new Object3D();
 
-  private spikeObject = new Object3D();
+  private fence01Object = new Object3D();
 
   private obstacleArray: Group[] = [];
 
@@ -60,7 +73,10 @@ export default class RunningScene extends Scene {
 
   private currentObstacleTwo = new Group();
 
-  private playerBox = new Mesh(new BoxGeometry(), new MeshPhongMaterial({ color: 0x0000ff }));
+  private playerBox = new Mesh(
+    new BoxGeometry(),
+    new MeshPhongMaterial({ color: 0x0000ff })
+  );
 
   private playerBoxCollider = new Box3(new Vector3(), new Vector3());
 
@@ -89,10 +105,10 @@ export default class RunningScene extends Scene {
   private isPlayerHeadStart = false;
 
   async load() {
-    const ambient = new AmbientLight(0xFFFFFF, 2.5);
+    const ambient = new AmbientLight(0xffffff, 2.5);
     this.add(ambient);
 
-    const light = new DirectionalLight(0xFFFFFF, 2.5);
+    const light = new DirectionalLight(0xffffff, 2.5);
 
     light.position.set(0, 40, -10);
     this.add(light);
@@ -105,45 +121,69 @@ export default class RunningScene extends Scene {
       this.background = texture;
     });
 
-    this.tunnel = await this.fbxLoader.loadAsync('./assets/models/hiepp.fbx');
-    this.tunnel.position.set(3, 0, -400);
-    this.tunnel.scale.set(0.055, 0.055, 0.05);
-    this.add(this.tunnel);
+    this.plane = await this.fbxLoader.loadAsync("./assets/models/plane.fbx");
+    this.plane.position.set(0, 0, -400);
+    this.plane.scale.set(0.055, 0.055, 0.05);
+    this.add(this.plane);
 
-    this.player = await this.fbxLoader.loadAsync('../../assets/characters/hiepdv.fbx');
+    this.player = await this.fbxLoader.loadAsync(
+      "../../assets/characters/hiepdv.fbx"
+    );
     this.player.position.z = -110;
-    this.player.position.y = -35;
+    this.player.position.y = -30;
     this.player.scale.set(0.1, 0.1, 0.1);
     this.player.rotation.y = 180 * (Math.PI / 180);
     this.add(this.player);
 
-    const runningAnimationObject = await this.fbxLoader.loadAsync('./assets/animations/hiepdv@running.fbx');
+    const runningAnimationObject = await this.fbxLoader.loadAsync(
+      "./assets/animations/hiepdv@running.fbx"
+    );
 
     this.animationMixer = new AnimationMixer(this.player);
-    this.runningAnimation = this.animationMixer.clipAction(runningAnimationObject.animations[0]);
+    this.runningAnimation = this.animationMixer.clipAction(
+      runningAnimationObject.animations[0]
+    );
     this.runningAnimation.play();
 
-    this.tunnelClone = this.tunnel.clone();
-    const caveBox = new Box3().setFromObject(this.tunnel);
+    this.planeClone = this.plane.clone();
+    const caveBox = new Box3().setFromObject(this.plane);
     this.caveSize = caveBox.max.z - caveBox.min.z - 1;
-    this.tunnelClone.position.z = this.tunnel.position.z + this.caveSize;
-    this.add(this.tunnelClone);
+    this.planeClone.position.z = this.plane.position.z + this.caveSize;
+    this.add(this.planeClone);
 
     this.currentAnimation = this.runningAnimation;
 
-    const jumpingAnimationObject = await this.fbxLoader.loadAsync('./assets/animations/hiepdv@jumping.fbx');
+    const jumpingAnimationObject = await this.fbxLoader.loadAsync(
+      "./assets/animations/hiepdv@jumping.fbx"
+    );
 
-    this.jumpingAnimation = this.animationMixer.clipAction(jumpingAnimationObject.animations[0]);
+    this.jumpingAnimation = this.animationMixer.clipAction(
+      jumpingAnimationObject.animations[0]
+    );
 
-    const slidingAnimationObject = await this.fbxLoader.loadAsync('./assets/animations/hiepdv@sliding.fbx');
+    const slidingAnimationObject = await this.fbxLoader.loadAsync(
+      "./assets/animations/hiepdv@sliding.fbx"
+    );
     slidingAnimationObject.animations[0].tracks.shift();
-    this.slidingAnimation = this.animationMixer.clipAction(slidingAnimationObject.animations[0]);
+    this.slidingAnimation = this.animationMixer.clipAction(
+      slidingAnimationObject.animations[0]
+    );
 
-    this.trainObject = await this.fbxLoader.loadAsync('../../assets/models/train.fbx');
-    this.knifeObject = await this.fbxLoader.loadAsync('../../assets/models/dao.fbx');
-    this.maceObject = await this.fbxLoader.loadAsync('../../assets/models/mace.fbx');
-    this.barrelObject = await this.fbxLoader.loadAsync('../../assets/models/barrel.fbx');
-    this.spikeObject = await this.fbxLoader.loadAsync('../../assets/models/spike.fbx');
+    this.train01Object = await this.fbxLoader.loadAsync(
+      "../../assets/models/train_01.fbx"
+    );
+    this.train02Object = await this.fbxLoader.loadAsync(
+      "../../assets/models/train_02.fbx"
+    );
+    this.fence02Object = await this.fbxLoader.loadAsync(
+      "../../assets/models/fence_02.fbx"
+    );
+    this.fence03Object = await this.fbxLoader.loadAsync(
+      "../../assets/models/fence_03.fbx"
+    );
+    this.fence01Object = await this.fbxLoader.loadAsync(
+      "../../assets/models/fence_01.fbx"
+    );
 
     this.createObstacleMove();
 
@@ -174,8 +214,14 @@ export default class RunningScene extends Scene {
     this.player.add(this.playerBox);
     this.playerBox.visible = false;
 
-    this.coinObject = await this.fbxLoader.loadAsync('../../assets/models/coin.fbx');
-    this.coinObject.rotation.set(90 * (Math.PI / 180), 0, 150 * (Math.PI / 180));
+    this.coinObject = await this.fbxLoader.loadAsync(
+      "../../assets/models/coin.fbx"
+    );
+    this.coinObject.rotation.set(
+      90 * (Math.PI / 180),
+      0,
+      150 * (Math.PI / 180)
+    );
 
     this.generateLeftCenterRightCoins();
 
@@ -187,45 +233,59 @@ export default class RunningScene extends Scene {
 
     this.generateRightCoins();
 
-    const stumblingAnimationObject = await this.fbxLoader.loadAsync('../../assets/animations/hiepdv@stumbling.fbx');
-    this.stumbleAnimation = this.animationMixer.clipAction(stumblingAnimationObject.animations[0]);
+    const stumblingAnimationObject = await this.fbxLoader.loadAsync(
+      "../../assets/animations/hiepdv@stumbling.fbx"
+    );
+    this.stumbleAnimation = this.animationMixer.clipAction(
+      stumblingAnimationObject.animations[0]
+    );
   }
 
   initialize() {
     document.onkeydown = (e) => {
       if (!this.isGameOver && !this.isGamePaused) {
-        if (e.key === 'ArrowLeft') {
+        if (e.key === "ArrowLeft") {
           this.moveLeft();
-        } if (e.key === 'ArrowRight') {
+        }
+        if (e.key === "ArrowRight") {
           this.moveRight();
         }
-        if (e.key === 'ArrowUp') {
+        if (e.key === "ArrowUp") {
           this.jump();
         }
-        if (e.key === 'ArrowDown') {
+        if (e.key === "ArrowDown") {
           this.slide();
         }
-        if (e.key === ' ') {
+        if (e.key === " ") {
           this.pauseAndResumeGame();
         }
       }
     };
-    (document.querySelector('.scores-container') as HTMLInputElement).style.display = 'block';
+    (
+      document.querySelector(".scores-container") as HTMLInputElement
+    ).style.display = "block";
 
-    (document.querySelector('.coins-container') as HTMLInputElement).style.display = 'block';
+    (
+      document.querySelector(".coins-container") as HTMLInputElement
+    ).style.display = "block";
 
-    (document.querySelector('.pause-button') as HTMLInputElement).style.display = 'block';
+    (
+      document.querySelector(".pause-button") as HTMLInputElement
+    ).style.display = "block";
 
-    (document.querySelector('.pause-button') as HTMLInputElement).onclick = () => {
-      this.pauseAndResumeGame();
-    };
+    (document.querySelector(".pause-button") as HTMLInputElement).onclick =
+      () => {
+        this.pauseAndResumeGame();
+      };
 
-    (document.getElementById('resume-button') as HTMLInputElement).onclick = () => {
-      this.pauseAndResumeGame();
-    };
-    (document.getElementById('restart-button') as HTMLInputElement).onclick = () => {
-      this.restartGame();
-    };
+    (document.getElementById("resume-button") as HTMLInputElement).onclick =
+      () => {
+        this.pauseAndResumeGame();
+      };
+    (document.getElementById("restart-button") as HTMLInputElement).onclick =
+      () => {
+        this.restartGame();
+      };
     setTimeout(() => {
       this.isPlayerHeadStart = true;
     }, 3000);
@@ -248,15 +308,15 @@ export default class RunningScene extends Scene {
       this.delta = this.clock.getDelta();
       this.animationMixer.update(this.delta);
     }
-    this.tunnel.position.z += this.speed * this.delta;
-    this.tunnelClone.position.z += this.speed * this.delta;
+    this.plane.position.z += this.speed * this.delta;
+    this.planeClone.position.z += this.speed * this.delta;
 
-    if (this.tunnel.position.z > 600) {
-      this.tunnel.position.z = this.tunnelClone.position.z - this.caveSize + 10;
+    if (this.plane.position.z > 600) {
+      this.plane.position.z = this.planeClone.position.z - this.caveSize + 10;
     }
 
-    if (this.tunnelClone.position.z > 600) {
-      this.tunnelClone.position.z = this.tunnel.position.z - this.caveSize + 10;
+    if (this.planeClone.position.z > 600) {
+      this.planeClone.position.z = this.plane.position.z - this.caveSize + 10;
     }
     TWEEN.update();
 
@@ -267,7 +327,8 @@ export default class RunningScene extends Scene {
     this.detectCollisionWithObstacles();
 
     this.scores += Math.round(this.speed * this.delta);
-    (document.querySelector('.scores-count') as HTMLInputElement).innerHTML = this.scores.toString();
+    (document.querySelector(".scores-count") as HTMLInputElement).innerHTML =
+      this.scores.toString();
 
     if (this.isPlayerHeadStart) {
       this.spawnObstacle();
@@ -286,13 +347,21 @@ export default class RunningScene extends Scene {
 
     this.scores = 0;
 
-    (document.getElementById('game-paused-modal') as HTMLInputElement).style.display = 'none';
+    (
+      document.getElementById("game-paused-modal") as HTMLInputElement
+    ).style.display = "none";
 
-    (document.querySelector('.scores-container') as HTMLInputElement).style.display = 'none';
+    (
+      document.querySelector(".scores-container") as HTMLInputElement
+    ).style.display = "none";
 
-    (document.querySelector('.coins-container') as HTMLInputElement).style.display = 'none';
+    (
+      document.querySelector(".coins-container") as HTMLInputElement
+    ).style.display = "none";
 
-    (document.querySelector('.pause-button') as HTMLInputElement).style.display = 'none';
+    (
+      document.querySelector(".pause-button") as HTMLInputElement
+    ).style.display = "none";
 
     this.visible = false;
 
@@ -308,12 +377,18 @@ export default class RunningScene extends Scene {
   private gameOver() {
     this.isGameOver = true;
     this.speed = 0;
-    (document.querySelector('.pause-button') as HTMLInputElement).style.display = 'none';
+    (
+      document.querySelector(".pause-button") as HTMLInputElement
+    ).style.display = "none";
     setTimeout(() => {
       this.clock.stop();
-      (document.getElementById('game-over-modal') as HTMLInputElement).style.display = 'block';
-      (document.querySelector('#current-score') as HTMLInputElement).innerHTML = this.scores.toString();
-      (document.querySelector('#current-coins') as HTMLInputElement).innerHTML = this.coins.toString();
+      (
+        document.getElementById("game-over-modal") as HTMLInputElement
+      ).style.display = "block";
+      (document.querySelector("#current-score") as HTMLInputElement).innerHTML =
+        this.scores.toString();
+      (document.querySelector("#current-coins") as HTMLInputElement).innerHTML =
+        this.coins.toString();
     }, 3000);
     this.stumbleAnimation.reset();
     this.stumbleAnimation.setLoop(1, 1);
@@ -327,7 +402,9 @@ export default class RunningScene extends Scene {
   }
 
   private restartGame() {
-    (document.getElementById('game-over-modal') as HTMLInputElement).style.display = 'none';
+    (
+      document.getElementById("game-over-modal") as HTMLInputElement
+    ).style.display = "none";
     this.currentObstacleOne.position.z = -1200;
     this.currentObstacleTwo.position.z = -1500;
     this.activeCoinsGroup.position.z = -1800;
@@ -335,14 +412,17 @@ export default class RunningScene extends Scene {
     this.speed = 220;
     this.coins = 0;
     this.scores = 0;
-    (document.querySelector('.coins-count') as HTMLInputElement).innerHTML = '0';
+    (document.querySelector(".coins-count") as HTMLInputElement).innerHTML =
+      "0";
     this.runningAnimation.reset();
     this.currentAnimation.crossFadeTo(this.runningAnimation, 0, false).play();
     this.player.position.z = -110;
     this.isGameOver = false;
     this.isGamePaused = false;
     this.currentAnimation = this.runningAnimation;
-    (document.querySelector('.pause-button') as HTMLInputElement).style.display = 'block';
+    (
+      document.querySelector(".pause-button") as HTMLInputElement
+    ).style.display = "block";
     this.player.position.x = 0;
     setTimeout(() => {
       this.isPlayerHeadStart = true;
@@ -366,14 +446,14 @@ export default class RunningScene extends Scene {
   }
 
   private moveLeft() {
-    if (this.player.position.x !== -18) {
+    if (this.player.position.x !== -25) {
       const tweenLeft = new TWEEN.Tween(this.player.position)
-        .to({ x: this.player.position.x - 18 }, 200)
+        .to({ x: this.player.position.x - 25 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .onUpdate(() => {
           this.player.rotation.y = -140 * (Math.PI / 180);
-          if (this.player.position.x <= -18) {
-            this.player.position.x = -18;
+          if (this.player.position.x <= -25) {
+            this.player.position.x = -25;
           }
         })
         .onComplete(() => {
@@ -384,14 +464,14 @@ export default class RunningScene extends Scene {
   }
 
   private moveRight() {
-    if (this.player.position.x !== 18) {
+    if (this.player.position.x !== 25) {
       this.player.rotation.y = 140 * (Math.PI / 180);
       const tweenRight = new Tween(this.player.position)
-        .to({ x: this.player.position.x + 18 }, 200)
+        .to({ x: this.player.position.x + 25 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .onUpdate(() => {
-          if (this.player.position.x >= 18) {
-            this.player.position.x = 18;
+          if (this.player.position.x >= 25) {
+            this.player.position.x = 25;
           }
         })
         .onComplete(() => {
@@ -405,7 +485,7 @@ export default class RunningScene extends Scene {
     if (!this.isJumping) {
       if (this.isSliding) {
         clearTimeout(this.sliderTimeout);
-        this.player.position.y = -35;
+        this.player.position.y = -30;
         this.isSliding = false;
       }
       this.isJumping = true;
@@ -415,19 +495,26 @@ export default class RunningScene extends Scene {
       this.currentAnimation.setLoop(1, 1);
       this.currentAnimation.clampWhenFinished = true;
       this.currentAnimation.play();
-      this.animationMixer.addEventListener('finished', () => {
-        this.currentAnimation.crossFadeTo(this.runningAnimation, 0.1, false).play();
+      this.animationMixer.addEventListener("finished", () => {
+        this.currentAnimation
+          .crossFadeTo(this.runningAnimation, 0.1, false)
+          .play();
         this.currentAnimation = this.runningAnimation;
       });
 
-      this.jumpingUp = new Tween(this.player.position).to({ y: this.player.position.y += 20 }, 400);
-      this.jumpingDown = new Tween(this.player.position)
-        .to({ y: this.player.position.y -= 20 }, 500);
+      this.jumpingUp = new Tween(this.player.position).to(
+        { y: (this.player.position.y += 20) },
+        400
+      );
+      this.jumpingDown = new Tween(this.player.position).to(
+        { y: (this.player.position.y -= 20) },
+        500
+      );
       this.jumpingUp.chain(this.jumpingDown);
       this.jumpingUp.start();
       this.jumpingDown.onComplete(() => {
         this.isJumping = false;
-        this.player.position.y = -35;
+        this.player.position.y = -30;
       });
     }
   }
@@ -437,7 +524,7 @@ export default class RunningScene extends Scene {
       if (this.isJumping) {
         this.jumpingUp.stop();
         this.jumpingDown.stop();
-        this.player.position.y = -35;
+        this.player.position.y = -30;
         this.isJumping = false;
       }
       this.isSliding = true;
@@ -447,10 +534,12 @@ export default class RunningScene extends Scene {
       this.currentAnimation = this.slidingAnimation;
       this.slidingAnimation.clampWhenFinished = true;
       this.slidingAnimation.play();
-      this.slidingAnimation.crossFadeTo(this.runningAnimation, 1.9, false).play();
+      this.slidingAnimation
+        .crossFadeTo(this.runningAnimation, 1.9, false)
+        .play();
       this.currentAnimation = this.runningAnimation;
       this.sliderTimeout = setTimeout(() => {
-        this.player.position.y = -35;
+        this.player.position.y = -30;
         this.isSliding = false;
       }, 800);
     }
@@ -459,8 +548,10 @@ export default class RunningScene extends Scene {
   private createRandomObstacle() {
     let randomNum = Math.floor(Math.random() * this.obstacleArray.length);
 
-    while (this.obstacleArray[randomNum] === this.currentObstacleOne
-      || this.obstacleArray[randomNum] === this.currentObstacleTwo) {
+    while (
+      this.obstacleArray[randomNum] === this.currentObstacleOne ||
+      this.obstacleArray[randomNum] === this.currentObstacleTwo
+    ) {
       randomNum = Math.floor(Math.random() * this.obstacleArray.length);
     }
     return this.obstacleArray[randomNum];
@@ -473,14 +564,16 @@ export default class RunningScene extends Scene {
 
     if (!this.currentObstacleTwo.visible) {
       this.currentObstacleTwo.visible = true;
-      this.currentObstacleTwo.position.z = this.currentObstacleOne.position.z - 450;
+      this.currentObstacleTwo.position.z =
+        this.currentObstacleOne.position.z - 450;
     }
 
     this.currentObstacleOne.position.z += this.speed * this.delta;
     this.currentObstacleTwo.position.z += this.speed * this.delta;
     if (this.currentObstacleOne === this.obstacleArray[0]) {
       // eslint-disable-next-line max-len
-      this.currentObstacleOne.position.x += Math.sin(this.currentObstacleOne.position.z / 100) * 0.3;
+      this.currentObstacleOne.position.x +=
+        Math.sin(this.currentObstacleOne.position.z / 100) * 0.3;
     }
 
     if (this.currentObstacleOne.position.z > -40) {
@@ -491,7 +584,8 @@ export default class RunningScene extends Scene {
 
     if (this.currentObstacleTwo.position.z > -40) {
       this.currentObstacleTwo.visible = false;
-      this.currentObstacleTwo.position.z = this.currentObstacleOne.position.z - 450;
+      this.currentObstacleTwo.position.z =
+        this.currentObstacleOne.position.z - 450;
       this.currentObstacleTwo = this.createRandomObstacle();
     }
   }
@@ -505,7 +599,9 @@ export default class RunningScene extends Scene {
         if (!this.isGamePaused && !this.isGameOver) {
           this.coins += 1;
         }
-        (document.querySelector('.coins-count') as HTMLInputElement).innerHTML = `${this.coins}`;
+        (
+          document.querySelector(".coins-count") as HTMLInputElement
+        ).innerHTML = `${this.coins}`;
         setTimeout(() => {
           this.activeCoinsGroup.children[i].position.z -= 70;
         }, 100);
@@ -539,11 +635,15 @@ export default class RunningScene extends Scene {
   private pauseAndResumeGame() {
     if (!this.isGamePaused) {
       this.clock.stop();
-      (document.getElementById('game-paused-modal') as HTMLInputElement).style.display = 'block';
+      (
+        document.getElementById("game-paused-modal") as HTMLInputElement
+      ).style.display = "block";
       this.isGamePaused = true;
     } else {
       this.clock.start();
-      (document.getElementById('game-paused-modal') as HTMLInputElement).style.display = 'none';
+      (
+        document.getElementById("game-paused-modal") as HTMLInputElement
+      ).style.display = "none";
       this.isGamePaused = false;
     }
     this.saveCoins();
@@ -551,27 +651,43 @@ export default class RunningScene extends Scene {
   }
 
   private saveHighScore() {
-    const highScore = localStorage.getItem('high-score') || 0;
+    const highScore = localStorage.getItem("high-score") || 0;
     if (Number(this.scores) > Number(highScore)) {
-      localStorage.setItem('high-score', this.scores.toString());
+      localStorage.setItem("high-score", this.scores.toString());
     }
   }
 
   private saveCoins() {
-    const prevTotalCoins = localStorage.getItem('total-coins') || 0;
+    const prevTotalCoins = localStorage.getItem("total-coins") || 0;
     const totalCoins = Number(prevTotalCoins) + this.coins;
-    localStorage.setItem('coins', totalCoins.toString());
+    localStorage.setItem("coins", totalCoins.toString());
+  }
+
+  private randomTrain() {
+    const randNum = Math.floor(Math.random() * 2);
+    if (randNum === 0) {
+      return this.train01Object.clone();
+    }
+    return this.train02Object.clone();
+  }
+
+  private randomFence() {
+    const randNum = Math.floor(Math.random() * 2);
+    if (randNum === 0) {
+      return this.fence01Object.clone();
+    }
+    return this.fence02Object.clone();
   }
 
   private createObstacleMove() {
     const meshGroup = new Group();
-    const mesh2 = this.knifeObject.clone();
-    mesh2.scale.set(0.09, 0.09, 0.09);
-    mesh2.position.set(42, -31, 0);
+    const mesh2 = this.randomFence();
+    mesh2.scale.set(0.06, 0.06, 0.06);
+    mesh2.position.set(40, -25, 0);
     meshGroup.add(mesh2);
-    const mesh3 = this.spikeObject.clone();
+    const mesh3 = this.randomFence();
     mesh3.scale.set(0.06, 0.06, 0.06);
-    mesh3.position.set(-8, -31, 0);
+    mesh3.position.set(-8, -25, 0);
     meshGroup.add(mesh3);
     meshGroup.position.set(0, 0, -800);
     this.add(meshGroup);
@@ -581,13 +697,13 @@ export default class RunningScene extends Scene {
 
   private createLeftJumpObstacle() {
     const meshGroup = new Group();
-    const mesh = this.trainObject.clone();
+    const mesh = this.randomTrain();
     mesh.scale.set(0.03, 0.03, 0.03);
-    mesh.position.set(0, -25, 0);
+    mesh.position.set(0, -16, 0);
     meshGroup.add(mesh);
-    const mesh2 = this.trainObject.clone();
+    const mesh2 = this.randomTrain();
     mesh2.scale.set(0.03, 0.03, 0.03);
-    mesh2.position.set(20, -25, 0);
+    mesh2.position.set(25, -16, 0);
     meshGroup.add(mesh2);
     meshGroup.position.set(0, 0, -800);
     this.add(meshGroup);
@@ -597,17 +713,17 @@ export default class RunningScene extends Scene {
 
   private createCenterJumpObstacle() {
     const meshGroup = new Group();
-    const mesh = this.trainObject.clone();
-    mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(-21, -20, 0);
+    const mesh = this.randomTrain();
+    mesh.scale.set(0.03, 0.03, 0.03);
+    mesh.position.set(-25, -16, 0);
     meshGroup.add(mesh);
-    const mesh2 = this.trainObject.clone();
-    mesh2.scale.set(0.04, 0.04, 0.04);
-    mesh2.position.set(20, -20, 0);
+    const mesh2 = this.randomTrain();
+    mesh2.scale.set(0.03, 0.03, 0.03);
+    mesh2.position.set(25, -16, 0);
     meshGroup.add(mesh2);
-    const mesh3 = this.spikeObject.clone();
+    const mesh3 = this.randomFence();
     mesh3.scale.set(0.06, 0.06, 0.06);
-    mesh3.position.set(0, -31, 0);
+    mesh3.position.set(0, -25, 0);
     meshGroup.add(mesh3);
     meshGroup.position.set(0, 0, -1200);
     this.add(meshGroup);
@@ -617,17 +733,17 @@ export default class RunningScene extends Scene {
 
   private createRightJumpObstacle() {
     const meshGroup = new Group();
-    const mesh = this.trainObject.clone();
-    mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(-21, -20, 0);
+    const mesh = this.randomTrain();
+    mesh.scale.set(0.03, 0.03, 0.03);
+    mesh.position.set(-25, -16, 0);
     meshGroup.add(mesh);
-    const mesh2 = this.trainObject.clone();
-    mesh2.scale.set(0.04, 0.04, 0.04);
-    mesh2.position.set(-1, -20, 0);
+    const mesh2 = this.randomTrain();
+    mesh2.scale.set(0.03, 0.03, 0.03);
+    mesh2.position.set(0, -16, 0);
     meshGroup.add(mesh2);
-    const mesh3 = this.spikeObject.clone();
+    const mesh3 = this.randomFence();
     mesh3.scale.set(0.06, 0.06, 0.06);
-    mesh3.position.set(20, -31, 0);
+    mesh3.position.set(25, -25, 0);
     meshGroup.add(mesh3);
     meshGroup.position.set(0, 0, -1200);
     this.add(meshGroup);
@@ -637,13 +753,13 @@ export default class RunningScene extends Scene {
 
   private createRightCenterObstacle() {
     const meshGroup = new Group();
-    const mesh = this.trainObject.clone();
-    mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(-1, -20, 0);
+    const mesh = this.randomTrain();
+    mesh.scale.set(0.03, 0.03, 0.03);
+    mesh.position.set(0, -16, 0);
     meshGroup.add(mesh);
-    const mesh2 = this.trainObject.clone();
-    mesh2.scale.set(0.04, 0.04, 0.04);
-    mesh2.position.set(20, -20, 0);
+    const mesh2 = this.randomTrain();
+    mesh2.scale.set(0.03, 0.03, 0.03);
+    mesh2.position.set(25, -16, 0);
     meshGroup.add(mesh2);
     meshGroup.position.set(0, 0, -1200);
     this.add(meshGroup);
@@ -653,13 +769,13 @@ export default class RunningScene extends Scene {
 
   private createLeftCenterObstacle() {
     const meshGroup = new Group();
-    const mesh = this.trainObject.clone();
-    mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(-22, -20, 0);
+    const mesh = this.randomTrain();
+    mesh.scale.set(0.03, 0.03, 0.03);
+    mesh.position.set(-25, -16, 0);
     meshGroup.add(mesh);
-    const mesh2 = this.trainObject.clone();
-    mesh2.scale.set(0.04, 0.04, 0.04);
-    mesh2.position.set(-1, -20, 0);
+    const mesh2 = this.randomTrain();
+    mesh2.scale.set(0.03, 0.03, 0.03);
+    mesh2.position.set(0, -16, 0);
     meshGroup.add(mesh2);
     meshGroup.position.set(0, 0, -1200);
     this.add(meshGroup);
@@ -669,13 +785,13 @@ export default class RunningScene extends Scene {
 
   private createLeftRightObstacle() {
     const meshGroup = new Group();
-    const mesh = this.trainObject.clone();
-    mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(-23, -20, 0);
+    const mesh = this.randomTrain();
+    mesh.scale.set(0.03, 0.03, 0.03);
+    mesh.position.set(-25, -16, 0);
     meshGroup.add(mesh);
-    const mesh2 = this.trainObject.clone();
-    mesh2.scale.set(0.04, 0.04, 0.04);
-    mesh2.position.set(21, -20, 0);
+    const mesh2 = this.randomTrain();
+    mesh2.scale.set(0.03, 0.03, 0.03);
+    mesh2.position.set(25, -16, 0);
     meshGroup.add(mesh2);
     meshGroup.position.set(0, 0, -1200);
     this.add(meshGroup);
@@ -685,13 +801,13 @@ export default class RunningScene extends Scene {
 
   private createCenterRightObstacle() {
     const meshGroup = new Group();
-    const mesh = this.trainObject.clone();
-    mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(-22, -20, 0);
+    const mesh = this.randomTrain();
+    mesh.scale.set(0.03, 0.03, 0.03);
+    mesh.position.set(-25, -16, 0);
     meshGroup.add(mesh);
-    const mesh2 = this.trainObject.clone();
-    mesh2.scale.set(0.04, 0.04, 0.04);
-    mesh2.position.set(21, -20, 0);
+    const mesh2 = this.randomTrain();
+    mesh2.scale.set(0.03, 0.03, 0.03);
+    mesh2.position.set(25, -16, 0);
     meshGroup.add(mesh2);
     meshGroup.position.set(0, 0, -1200);
     this.add(meshGroup);
@@ -701,18 +817,18 @@ export default class RunningScene extends Scene {
 
   private createCenterSlideObstacle() {
     const meshGroup = new Group();
-    const mesh = this.trainObject.clone();
-    mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(-23, -20, 0);
+    const mesh = this.randomTrain();
+    mesh.scale.set(0.03, 0.03, 0.03);
+    mesh.position.set(-25, -16, 0);
     meshGroup.add(mesh);
-    const mesh2 = this.trainObject.clone();
-    mesh2.scale.set(0.04, 0.04, 0.04);
-    mesh2.position.set(21, -20, 0);
+    const mesh2 = this.randomTrain();
+    mesh2.scale.set(0.03, 0.03, 0.03);
+    mesh2.position.set(25, -16, 0);
     meshGroup.add(mesh2);
-    const mesh3 = this.maceObject.clone();
-    mesh3.scale.set(0.0035, 0.0035, 0.0035);
-    mesh3.position.set(0, -10, 3);
-    meshGroup.add(mesh3);
+    // const mesh3 = this.fence03Object.clone();
+    // mesh3.scale.set(0.06, 0.06, 0.06);
+    // mesh3.position.set(0, -16, 3);
+    // meshGroup.add(mesh3);
     meshGroup.position.set(0, 0, -1200);
     this.add(meshGroup);
     meshGroup.visible = false;
@@ -721,18 +837,18 @@ export default class RunningScene extends Scene {
 
   private createRightSlideObstacle() {
     const meshGroup = new Group();
-    const mesh = this.trainObject.clone();
-    mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(-22, -20, 0);
+    const mesh = this.randomTrain();
+    mesh.scale.set(0.03, 0.03, 0.03);
+    mesh.position.set(-22, -16, 0);
     meshGroup.add(mesh);
-    const mesh2 = this.trainObject.clone();
-    mesh2.scale.set(0.04, 0.04, 0.04);
-    mesh2.position.set(-1, -20, 0);
+    const mesh2 = this.randomTrain();
+    mesh2.scale.set(0.03, 0.03, 0.03);
+    mesh2.position.set(-1, -16, 0);
     meshGroup.add(mesh2);
-    const mesh3 = this.maceObject.clone();
-    mesh3.scale.set(0.0035, 0.0035, 0.0035);
-    mesh3.position.set(20, -10, 3);
-    meshGroup.add(mesh3);
+    // const mesh3 = this.fence03Object.clone();
+    // mesh3.scale.set(0.06, 0.06, 0.06);
+    // mesh3.position.set(20, -16, 3);
+    // meshGroup.add(mesh3);
     meshGroup.position.set(0, 0, -1200);
     this.add(meshGroup);
     meshGroup.visible = false;
@@ -741,18 +857,18 @@ export default class RunningScene extends Scene {
 
   private createLeftSlideObstacle() {
     const meshGroup = new Group();
-    const mesh = this.trainObject.clone();
-    mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(21, -20, 0);
+    const mesh = this.randomTrain();
+    mesh.scale.set(0.03, 0.03, 0.03);
+    mesh.position.set(21, -16, 0);
     meshGroup.add(mesh);
-    const mesh2 = this.trainObject.clone();
-    mesh2.scale.set(0.04, 0.04, 0.04);
-    mesh2.position.set(0, -20, 0);
+    const mesh2 = this.randomTrain();
+    mesh2.scale.set(0.03, 0.03, 0.03);
+    mesh2.position.set(0, -16, 0);
     meshGroup.add(mesh2);
-    const mesh3 = this.maceObject.clone();
-    mesh3.scale.set(0.0035, 0.0035, 0.0035);
-    mesh3.position.set(-21, -10, 3);
-    meshGroup.add(mesh3);
+    // const mesh3 = this.fence03Object.clone();
+    // mesh3.scale.set(0.06, 0.06, 0.06);
+    // mesh3.position.set(-21, -16, 3);
+    // meshGroup.add(mesh3);
     meshGroup.position.set(0, 0, -1200);
     this.add(meshGroup);
     meshGroup.visible = false;
@@ -765,9 +881,9 @@ export default class RunningScene extends Scene {
       const leftCoin = this.coinObject.clone();
       const centerCoin = this.coinObject.clone();
       const rightCoin = this.coinObject.clone();
-      leftCoin.position.set(-18, -12, -i * 20);
-      centerCoin.position.set(0, -12, -i * 20);
-      rightCoin.position.set(18, -12, -i * 20);
+      leftCoin.position.set(-20, 0, -i * 20);
+      centerCoin.position.set(0, 0, -i * 20);
+      rightCoin.position.set(20, 0, -i * 20);
       leftCoin.scale.set(0.035, 0.035, 0.035);
       centerCoin.scale.set(0.035, 0.035, 0.035);
       rightCoin.scale.set(0.035, 0.035, 0.035);
@@ -783,7 +899,7 @@ export default class RunningScene extends Scene {
     const coinsGroup = new Group();
     for (let i = 0; i < 5; i += 1) {
       const leftCoin = this.coinObject.clone();
-      leftCoin.position.set(-18, -12, -i * 20);
+      leftCoin.position.set(-20, -0, -i * 20);
       leftCoin.scale.set(0.035, 0.035, 0.035);
       coinsGroup.add(leftCoin);
     }
@@ -798,8 +914,8 @@ export default class RunningScene extends Scene {
     for (let i = 0; i < 5; i += 1) {
       const leftCoin = this.coinObject.clone();
       const centerCoin = this.coinObject.clone();
-      leftCoin.position.set(-18, -12, -i * 20);
-      centerCoin.position.set(0, -12, -i * 20);
+      leftCoin.position.set(-20, 0, -i * 20);
+      centerCoin.position.set(0, 0, -i * 20);
       leftCoin.scale.set(0.035, 0.035, 0.035);
       centerCoin.scale.set(0.035, 0.035, 0.035);
       coinsGroup.add(leftCoin, centerCoin);
@@ -815,8 +931,8 @@ export default class RunningScene extends Scene {
     for (let i = 0; i < 5; i += 1) {
       const centerCoin = this.coinObject.clone();
       const rightCoin = this.coinObject.clone();
-      centerCoin.position.set(0, -12, -i * 20);
-      rightCoin.position.set(18, -12, -i * 20);
+      centerCoin.position.set(0, 0, -i * 20);
+      rightCoin.position.set(20, 0, -i * 20);
       coinsGroup.add(centerCoin, rightCoin);
       centerCoin.scale.set(0.035, 0.035, 0.035);
       rightCoin.scale.set(0.035, 0.035, 0.035);
@@ -831,7 +947,7 @@ export default class RunningScene extends Scene {
     const coinsGroup = new Group();
     for (let i = 0; i < 5; i += 1) {
       const rightCoin = this.coinObject.clone();
-      rightCoin.position.set(18, -12, -i * 20);
+      rightCoin.position.set(20, 0, -i * 20);
       coinsGroup.add(rightCoin);
       rightCoin.scale.set(0.035, 0.035, 0.035);
     }
