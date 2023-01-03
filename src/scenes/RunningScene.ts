@@ -143,7 +143,7 @@ export default class RunningScene extends Scene {
 
     this.trainObject = await this.fbxLoader.loadAsync('../../assets/models/train.fbx');
     this.knifeObject = await this.fbxLoader.loadAsync('../../assets/models/trunk.fbx');
-    this.maceObject = await this.fbxLoader.loadAsync('../../assets/models/mace.fbx');
+    this.maceObject = await this.fbxLoader.loadAsync('../../assets/models/woodlp.fbx');
     this.rockObject = await this.fbxLoader.loadAsync('../../assets/models/treelog.fbx');
 
     this.createObstacleMove();
@@ -329,7 +329,7 @@ export default class RunningScene extends Scene {
     this.currentObstacleTwo.position.z = -1500;
     this.activeCoinsGroup.position.z = -1800;
     this.clock.start();
-    this.speed = 130;
+    this.speed = 150;
     this.coins = 0;
     this.scores = 0;
     (document.querySelector('.coins-count') as HTMLInputElement).innerHTML = '0';
@@ -479,7 +479,7 @@ export default class RunningScene extends Scene {
       // eslint-disable-next-line max-len
       this.currentObstacleOne.position.x += Math.sin(this.currentObstacleOne.position.z / 100) * 0.6;
       // eslint-disable-next-line max-len
-      this.currentObstacleOne.rotation.z += Math.sin(this.currentObstacleOne.position.z / 100) * 0.1;
+      this.currentObstacleOne.rotation.x += Math.sin(this.currentObstacleOne.position.z / 100) * 0.1;
     }
 
     if (this.currentObstacleOne.position.z > -40) {
@@ -693,8 +693,8 @@ export default class RunningScene extends Scene {
     mesh2.position.set(23, -20, 0);
     meshGroup.add(mesh2);
     const mesh3 = this.maceObject.clone();
-    mesh3.scale.set(0.0035, 0.0035, 0.0035);
-    mesh3.position.set(0, -10, 3);
+    mesh3.scale.set(0.002, 0.002, 0.002);
+    mesh3.position.set(0, -15, 3);
     meshGroup.add(mesh3);
     meshGroup.position.set(0, 0, -1200);
     this.add(meshGroup);
@@ -713,8 +713,8 @@ export default class RunningScene extends Scene {
     mesh2.position.set(0, -20, 0);
     meshGroup.add(mesh2);
     const mesh3 = this.maceObject.clone();
-    mesh3.scale.set(0.0035, 0.0035, 0.0035);
-    mesh3.position.set(20, -10, 3);
+    mesh3.scale.set(0.002, 0.002, 0.002);
+    mesh3.position.set(20, -15, 3);
     meshGroup.add(mesh3);
     meshGroup.position.set(0, 0, -1200);
     this.add(meshGroup);
@@ -733,8 +733,8 @@ export default class RunningScene extends Scene {
     mesh2.position.set(0, -20, 0);
     meshGroup.add(mesh2);
     const mesh3 = this.maceObject.clone();
-    mesh3.scale.set(0.0035, 0.0035, 0.0035);
-    mesh3.position.set(-21, -10, 3);
+    mesh3.scale.set(0.002, 0.002, 0.002);
+    mesh3.position.set(-21, -15, 3);
     meshGroup.add(mesh3);
     meshGroup.position.set(0, 0, -1200);
     this.add(meshGroup);
