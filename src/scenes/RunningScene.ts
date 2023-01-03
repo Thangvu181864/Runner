@@ -88,10 +88,10 @@ export default class RunningScene extends Scene {
   private isPlayerHeadStart = false;
 
   async load() {
-    const ambient = new AmbientLight(0xFFFFFF, 1.5);
+    const ambient = new AmbientLight(0xFFFFFF, 1);
     this.add(ambient);
 
-    const light = new DirectionalLight(0xf6b26b, 1.5);
+    const light = new DirectionalLight(0xf6b26b, 1);
 
     light.castShadow = true;
     light.position.set(0, 40, -10);
@@ -108,8 +108,8 @@ export default class RunningScene extends Scene {
     });
 
     this.tunnel = await this.fbxLoader.loadAsync('./assets/models/hiepp.fbx');
-    this.tunnel.position.set(0, 0, -400);
-    this.tunnel.scale.set(0.055, 0.055, 0.05);
+    this.tunnel.position.set(-1, 0, -400);
+    this.tunnel.scale.set(0.05, 0.055, 0.05);
     this.add(this.tunnel);
 
     this.player = await this.fbxLoader.loadAsync('../../assets/characters/hiepdv.fbx');
@@ -142,13 +142,11 @@ export default class RunningScene extends Scene {
     this.slidingAnimation = this.animationMixer.clipAction(slidingAnimationObject.animations[0]);
 
     this.trainObject = await this.fbxLoader.loadAsync('../../assets/models/train.fbx');
-    this.knifeObject = await this.fbxLoader.loadAsync('../../assets/models/dao.fbx');
+    this.knifeObject = await this.fbxLoader.loadAsync('../../assets/models/trunk.fbx');
     this.maceObject = await this.fbxLoader.loadAsync('../../assets/models/mace.fbx');
-    this.rockObject = await this.fbxLoader.loadAsync('../../assets/models/rock.fbx');
+    this.rockObject = await this.fbxLoader.loadAsync('../../assets/models/treelog.fbx');
 
     this.createObstacleMove();
-
-    this.createLeftJumpObstacle();
 
     this.createLeftJumpObstacle();
 
@@ -159,8 +157,6 @@ export default class RunningScene extends Scene {
     this.createRightCenterObstacle();
 
     this.createLeftSlideObstacle();
-
-    this.createCenterRightObstacle();
 
     this.createLeftCenterObstacle();
 
@@ -239,7 +235,7 @@ export default class RunningScene extends Scene {
       this.currentAnimation.reset();
       this.currentAnimation.play();
       this.clock.start();
-      this.speed = 180;
+      this.speed = 100;
       this.player.position.x = 0;
     }
   }
@@ -275,8 +271,8 @@ export default class RunningScene extends Scene {
       this.spawnCoin();
     }
 
-    if (!this.isGameOver && this.speed < 500 && !this.isGamePaused) {
-      this.speed += 0.05;
+    if (!this.isGameOver && this.speed < 200 && !this.isGamePaused) {
+      this.speed += 0.01;
     }
   }
 
@@ -333,7 +329,7 @@ export default class RunningScene extends Scene {
     this.currentObstacleTwo.position.z = -1500;
     this.activeCoinsGroup.position.z = -1800;
     this.clock.start();
-    this.speed = 220;
+    this.speed = 130;
     this.coins = 0;
     this.scores = 0;
     (document.querySelector('.coins-count') as HTMLInputElement).innerHTML = '0';
@@ -481,7 +477,9 @@ export default class RunningScene extends Scene {
     this.currentObstacleTwo.position.z += this.speed * this.delta;
     if (this.currentObstacleOne === this.obstacleArray[0]) {
       // eslint-disable-next-line max-len
-      this.currentObstacleOne.position.x += Math.sin(this.currentObstacleOne.position.z / 100) * 0.3;
+      this.currentObstacleOne.position.x += Math.sin(this.currentObstacleOne.position.z / 100) * 0.6;
+      // eslint-disable-next-line max-len
+      this.currentObstacleOne.rotation.z += Math.sin(this.currentObstacleOne.position.z / 100) * 0.1;
     }
 
     if (this.currentObstacleOne.position.z > -40) {
@@ -600,11 +598,11 @@ export default class RunningScene extends Scene {
     const meshGroup = new Group();
     const mesh = this.trainObject.clone();
     mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(-21, -20, 0);
+    mesh.position.set(-23, -20, 0);
     meshGroup.add(mesh);
     const mesh2 = this.trainObject.clone();
     mesh2.scale.set(0.04, 0.04, 0.04);
-    mesh2.position.set(20, -20, 0);
+    mesh2.position.set(23, -20, 0);
     meshGroup.add(mesh2);
     const mesh3 = this.rockObject.clone();
     mesh3.scale.set(0.06, 0.06, 0.06);
@@ -620,7 +618,7 @@ export default class RunningScene extends Scene {
     const meshGroup = new Group();
     const mesh = this.trainObject.clone();
     mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(-21, -20, 0);
+    mesh.position.set(-23, -20, 0);
     meshGroup.add(mesh);
     const mesh2 = this.trainObject.clone();
     mesh2.scale.set(0.04, 0.04, 0.04);
@@ -628,7 +626,7 @@ export default class RunningScene extends Scene {
     meshGroup.add(mesh2);
     const mesh3 = this.rockObject.clone();
     mesh3.scale.set(0.06, 0.06, 0.06);
-    mesh3.position.set(20, -31, 0);
+    mesh3.position.set(23, -31, 0);
     meshGroup.add(mesh3);
     meshGroup.position.set(0, 0, -1200);
     this.add(meshGroup);
@@ -640,11 +638,11 @@ export default class RunningScene extends Scene {
     const meshGroup = new Group();
     const mesh = this.trainObject.clone();
     mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(-1, -20, 0);
+    mesh.position.set(0, -20, 0);
     meshGroup.add(mesh);
     const mesh2 = this.trainObject.clone();
     mesh2.scale.set(0.04, 0.04, 0.04);
-    mesh2.position.set(20, -20, 0);
+    mesh2.position.set(24, -20, 0);
     meshGroup.add(mesh2);
     meshGroup.position.set(0, 0, -1200);
     this.add(meshGroup);
@@ -656,11 +654,11 @@ export default class RunningScene extends Scene {
     const meshGroup = new Group();
     const mesh = this.trainObject.clone();
     mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(-22, -20, 0);
+    mesh.position.set(-23, -20, 0);
     meshGroup.add(mesh);
     const mesh2 = this.trainObject.clone();
     mesh2.scale.set(0.04, 0.04, 0.04);
-    mesh2.position.set(-1, -20, 0);
+    mesh2.position.set(0, -20, 0);
     meshGroup.add(mesh2);
     meshGroup.position.set(0, 0, -1200);
     this.add(meshGroup);
@@ -676,23 +674,7 @@ export default class RunningScene extends Scene {
     meshGroup.add(mesh);
     const mesh2 = this.trainObject.clone();
     mesh2.scale.set(0.04, 0.04, 0.04);
-    mesh2.position.set(21, -20, 0);
-    meshGroup.add(mesh2);
-    meshGroup.position.set(0, 0, -1200);
-    this.add(meshGroup);
-    meshGroup.visible = false;
-    this.obstacleArray.push(meshGroup);
-  }
-
-  private createCenterRightObstacle() {
-    const meshGroup = new Group();
-    const mesh = this.trainObject.clone();
-    mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(-22, -20, 0);
-    meshGroup.add(mesh);
-    const mesh2 = this.trainObject.clone();
-    mesh2.scale.set(0.04, 0.04, 0.04);
-    mesh2.position.set(21, -20, 0);
+    mesh2.position.set(23, -20, 0);
     meshGroup.add(mesh2);
     meshGroup.position.set(0, 0, -1200);
     this.add(meshGroup);
@@ -704,11 +686,11 @@ export default class RunningScene extends Scene {
     const meshGroup = new Group();
     const mesh = this.trainObject.clone();
     mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(-23, -20, 0);
+    mesh.position.set(-24, -20, 0);
     meshGroup.add(mesh);
     const mesh2 = this.trainObject.clone();
     mesh2.scale.set(0.04, 0.04, 0.04);
-    mesh2.position.set(21, -20, 0);
+    mesh2.position.set(23, -20, 0);
     meshGroup.add(mesh2);
     const mesh3 = this.maceObject.clone();
     mesh3.scale.set(0.0035, 0.0035, 0.0035);
@@ -724,11 +706,11 @@ export default class RunningScene extends Scene {
     const meshGroup = new Group();
     const mesh = this.trainObject.clone();
     mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(-22, -20, 0);
+    mesh.position.set(-24, -20, 0);
     meshGroup.add(mesh);
     const mesh2 = this.trainObject.clone();
     mesh2.scale.set(0.04, 0.04, 0.04);
-    mesh2.position.set(-1, -20, 0);
+    mesh2.position.set(0, -20, 0);
     meshGroup.add(mesh2);
     const mesh3 = this.maceObject.clone();
     mesh3.scale.set(0.0035, 0.0035, 0.0035);
@@ -744,7 +726,7 @@ export default class RunningScene extends Scene {
     const meshGroup = new Group();
     const mesh = this.trainObject.clone();
     mesh.scale.set(0.04, 0.04, 0.04);
-    mesh.position.set(21, -20, 0);
+    mesh.position.set(23, -20, 0);
     meshGroup.add(mesh);
     const mesh2 = this.trainObject.clone();
     mesh2.scale.set(0.04, 0.04, 0.04);
